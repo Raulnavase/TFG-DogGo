@@ -4,7 +4,6 @@
 }
 
 .container {
-  border: 2px solid red;
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -149,7 +148,7 @@ const role = ref('')
 
 const register = async () => {
   if (!role.value) {
-    console.error('Hay quwe introducir un rol.')
+    console.error('Hay que introducir un rol.')
     return
   } else if (password.value !== repPassword.value) {
     console.error('Las contraseñas no coinciden.')

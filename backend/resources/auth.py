@@ -47,7 +47,13 @@ def login():
 
     if user and bcrypt.check_password_hash(user['password'], password):
         access_token = create_access_token(identity=email)
-        return jsonify(access_token=access_token, role=user.get("role")), 200
+        response_data = {
+            "access_token": access_token,
+            "role": user.get("role"),
+            "name": user.get("name")
+        }
+        print("Respuesta del login:", response_data)
+        return jsonify(response_data), 200
     else:
         return jsonify({"msg": "Credenciales inválidas"}), 401
 
