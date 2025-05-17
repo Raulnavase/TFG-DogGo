@@ -8,6 +8,8 @@
       <ul>
         <li v-for="dog in authStore.dogs" :key="dog._id">
           {{ dog.name }} ({{ dog.breed }}, {{ dog.age }} años)
+          <button @click="authStore.toggleEditDogForm(dog)">Editar</button>
+          <button @click="authStore.showDeleteConfirmation(dog)">Eliminar</button>
         </li>
       </ul>
     </div>
@@ -21,21 +23,47 @@
 
     <form v-if="authStore.showAddDogForm" @submit.prevent="authStore.addDog">
       <div>
-        <label for="name">Nombre:</label>
-        <input type="text" id="name" v-model="authStore.newDog.name" required />
+        <label for="add-name">Nombre:</label>
+        <input type="text" id="add-name" v-model="authStore.newDog.name" required />
       </div>
       <div>
-        <label for="breed">Raza:</label>
-        <input type="text" id="breed" v-model="authStore.newDog.breed" required />
+        <label for="add-breed">Raza:</label>
+        <input type="text" id="add-breed" v-model="authStore.newDog.breed" required />
       </div>
       <div>
-        <label for="age">Edad:</label>
-        <input type="number" id="age" v-model.number="authStore.newDog.age" required />
+        <label for="add-age">Edad:</label>
+        <input type="number" id="add-age" v-model.number="authStore.newDog.age" required />
       </div>
       <button type="submit">Agregar Perro</button>
       <p v-if="authStore.addDogError" class="error-message">{{ authStore.addDogError }}</p>
       <p v-if="authStore.addDogSuccess" class="success-message">{{ authStore.addDogSuccess }}</p>
     </form>
+
+    <form v-if="authStore.showEditDogForm" @submit.prevent="authStore.updateDog">
+      <h3>Editar Perro</h3>
+      <div>
+        <label for="edit-name">Nombre:</label>
+        <input type="text" id="edit-name" v-model="authStore.editDog.name" required />
+      </div>
+      <div>
+        <label for="edit-breed">Raza:</label>
+        <input type="text" id="edit-breed" v-model="authStore.editDog.breed" required />
+      </div>
+      <div>
+        <label for="edit-age">Edad:</label>
+        <input type="number" id="edit-age" v-model.number="authStore.editDog.age" required />
+      </div>
+      <button type="submit">Guardar Cambios</button>
+      <button type="button" @click="authStore.toggleEditDogForm(null)">Cancelar</button>
+      <p v-if="authStore.editDogError" class="error-message">{{ authStore.editDogError }}</p>
+      <p v-if="authStore.editDogSuccess" class="success-message">{{ authStore.editDogSuccess }}</p>
+    </form>
+
+    <div v-if="authStore.showDeleteConfirm" class="confirm-dialog">
+      <p>¿Estás seguro de eliminar a {{ authStore.dogToDelete?.name }}?</p>
+      <button @click="authStore.deleteDog">Sí, eliminar</button>
+      <button @click="authStore.cancelDelete">Cancelar</button>
+    </div>
   </div>
   <div v-else>
     <p>Cargando perfil...</p>
@@ -55,7 +83,7 @@ onMounted(async () => {
   if (!authStore.isLoggedIn) {
     router.push({ name: 'login' })
   } else {
-    await authStore.fetchDogs() // Cargar perros al montar
+    await authStore.fetchDogs()
   }
 })
 
@@ -65,4 +93,84 @@ const logout = async () => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+h1,
+h2,
+h3 {
+  color: #333;
+}
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+}
+button:hover {
+  opacity: 0.9;
+}
+button:nth-child(1) {
+  background-color: #dc3545;
+  color: white;
+}
+button:nth-child(2) {
+  background-color: #007bff;
+  color: white;
+}
+form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 300px;
+}
+label {
+  font-weight: bold;
+}
+input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+}
+.error-message {
+  color: #dc3545;
+  margin-top: 10px;
+}
+.success-message {
+  color: #28a745;
+  margin-top: 10px;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.confirm-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+.confirm-dialog button {
+  margin: 10px 5px;
+}
+.confirm-dialog button:first-child {
+  background-color: #dc3545;
+  color: white;
+}
+.confirm-dialog button:last-child {
+  background-color: #6c757d;
+  color: white;
+}
+</style>

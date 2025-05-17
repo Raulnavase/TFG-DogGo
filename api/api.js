@@ -28,7 +28,10 @@ addTokenInterceptor(authApi)
 addTokenInterceptor(dogsApi)
 
 export const authPost = (url, data) => authApi.post(url, data)
-export const dogsPost = (url, data) => dogsApi.post(url, data)
+export const dogsPost = (url, data, config = {}) =>
+  dogsApi.request({ ...config, url, data, method: 'POST' })
 export const dogsGet = (url) => dogsApi.get(url)
+export const dogsPut = (url, data) => dogsApi.put(url, data)
+export const dogsDelete = (url) => dogsApi.delete(url)
 
 export default authApi

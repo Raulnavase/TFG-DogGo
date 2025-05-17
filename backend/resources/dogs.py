@@ -87,12 +87,10 @@ def update_dog(dog_id):
     data = request.get_json()
     current_user_email = get_jwt_identity()
     owner_id = get_user_id_from_email(current_user_email)
-
     try:
         obj_dog_id = ObjectId(dog_id)
     except Exception:
         return jsonify({"msg": "ID de perro inválido"}), 400
-
     update_data = {}
     if 'name' in data:
         update_data['name'] = data['name']
@@ -100,10 +98,8 @@ def update_dog(dog_id):
         update_data['breed'] = data['breed']
     if 'age' in data:
         update_data['age'] = data['age']
-
     if not update_data:
         return jsonify({"msg": "No hay datos para actualizar"}), 400
-
     result = mongo.db.dogs.update_one(
         {"_id": obj_dog_id, "owner_id": owner_id},
         {"$set": update_data}
@@ -121,12 +117,10 @@ def update_dog(dog_id):
 def delete_dog(dog_id):
     current_user_email = get_jwt_identity()
     owner_id = get_user_id_from_email(current_user_email)
-
     try:
         obj_dog_id = ObjectId(dog_id)
     except Exception:
         return jsonify({"msg": "ID de perro inválido"}), 400
-
     result = mongo.db.dogs.delete_one({"_id": obj_dog_id, "owner_id": owner_id})
     if result.deleted_count:
         return jsonify({"msg": "Perro eliminado exitosamente"}), 200
