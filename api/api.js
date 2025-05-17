@@ -9,6 +9,15 @@ const api = axios.create({
   },
 })
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
 export const post = (url, data) => api.post(url, data)
+export const get = (url) => api.get(url)
 
 export default api

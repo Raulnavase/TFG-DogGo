@@ -85,51 +85,24 @@
 
 <script setup>
 import { ref } from 'vue'
-import api from '../../api/api'
-import router from '@/router'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
+const router = useRouter()
+const authStore = useAuthStore()
 
 const login = async () => {
   errorMessage.value = ''
   try {
-    const response = await api.post('/login', {
-      email: email.value,
-      password: password.value,
-    })
-    console.log('Respuesta del login:', response.data)
-    if (response.status === 200) {
-      const accessToken = response.data.access_token
-      const userRole = response.data.role
-      const userName = response.data.name
-
-      localStorage.setItem('accessToken', accessToken)
-      localStorage.setItem('userRole', userRole)
-      localStorage.setItem('userName', userName)
-
-      console.log(
-        'Inicio de sesión exitoso. Token:',
-        accessToken,
-        'Rol:',
-        userRole,
-        'Nombre:',
-        userName,
-      )
-
-      router.push('/' + userRole + '-profile')
-    } else {
-      errorMessage.value = 'Error al iniciar sesión. Credenciales inválidas.'
-      console.error('Error en la respuesta del login:', response)
+    const success = await authStore.loginUser({ email: email.value, password: password.value })
+    if (success) {
+      router.push({ name: `${authStore.userRole}-profile` })
     }
   } catch (error) {
-    console.error('Error al iniciar sesión:', error)
-    errorMessage.value = 'Error al iniciar sesión. Verifica tus credenciales o intenta de nuevo.'
-  } finally {
-    // Opcional: Limpiar los campos del formulario después del intento
-    // email.value = '';
-    // password.value = '';
+    errorMessage.value = authStore.loginError || 'Error al iniciar sesión'
   }
 }
 </script>

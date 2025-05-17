@@ -2,7 +2,7 @@
 
 <template>
   <div v-if="authStore.isLoggedIn && authStore.user">
-    <h1>¡Hola, {{ authStore.userName }}! - Perfil de Dueño</h1>
+    <h1>¡Hola, {{ authStore.userName }}! - Perfil de Paseador</h1>
     <button @click="logout">Cerrar sesión</button>
   </div>
   <div v-else>

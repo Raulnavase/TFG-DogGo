@@ -1,23 +1,36 @@
 <template>
   <div>
-    <h1>Index Page</h1>
-
-    <div>
-      <h3>¿Qué quieres hacer?</h3>
-      <span>
-        <p>
-          <RouterLink to="/login">Iniciar sesión</RouterLink>
-        </p>
-        <p>
-          <RouterLink to="/register">Crear cuenta</RouterLink>
-        </p>
-      </span>
+    <h1>Bienvenido a DogGo!</h1>
+    <div v-if="!authStore.isLoggedIn">
+      <router-link to="/login">Iniciar sesión</router-link>
+      <router-link to="/register">Registrarse</router-link>
+    </div>
+    <div v-else>
+      <router-link v-if="profileRoute" :to="profileRoute">Perfil</router-link>
+      <button @click="handleLogout">Cerrar sesión</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { RouterLink } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
+import { computed } from 'vue'
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+const profileRoute = computed(() => {
+  if (authStore.userRole) {
+    return '/' + authStore.userRole + '-profile'
+  }
+  return null
+})
+
+const handleLogout = () => {
+  authStore.logoutUser()
+  router.push('/')
+}
 </script>
 
 <style scoped></style>

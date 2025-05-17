@@ -57,6 +57,8 @@ def login():
     else:
         return jsonify({"msg": "Credenciales inválidas"}), 401
 
+
+
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
     response = jsonify({"msg": "Logout exitoso"})
