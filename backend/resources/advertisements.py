@@ -6,7 +6,7 @@ from utils.decorators import role_required
 
 advertisements_bp = Blueprint('advertisements', __name__, url_prefix='/advertisements')
 
-def get_user_id_from_email(email): # Reutilizamos la función helper
+def get_user_id_from_email(email):
     user = mongo.db.users.find_one({"email": email})
     return user['_id'] if user else None
 
@@ -28,7 +28,6 @@ def create_advertisement():
     if not walker_id:
         return jsonify({"msg": "Usuario paseador no encontrado"}), 404
 
-    # Un paseador solo puede tener un anuncio. Verificar si ya existe.
     existing_ad = mongo.db.advertisements.find_one({"walker_id": walker_id})
     if existing_ad:
         return jsonify({"msg": "Ya tienes un anuncio. Actualízalo o elimínalo primero."}), 409
@@ -42,7 +41,7 @@ def create_advertisement():
     result = mongo.db.advertisements.insert_one(ad_data)
     return jsonify({"msg": "Anuncio creado exitosamente", "advertisement_id": str(result.inserted_id)}), 201
 
-@advertisements_bp.route('', methods=['GET']) # Obtener mi anuncio
+@advertisements_bp.route('', methods=['GET'])
 @jwt_required()
 @role_required('walker')
 def get_my_advertisement():
@@ -60,20 +59,18 @@ def get_my_advertisement():
     else:
         return jsonify({"msg": "No tienes un anuncio creado."}), 404
 
-# Opcional: Ruta pública para ver todos los anuncios (si se desea)
 @advertisements_bp.route('/all', methods=['GET'])
 def get_all_advertisements():
     ads_cursor = mongo.db.advertisements.find({})
     ads_list = []
     for ad in ads_cursor:
         ad['_id'] = str(ad['_id'])
-        ad['walker_id'] = str(ad['walker_id']) # Considerar si exponer el walker_id directamente
-        # Podrías querer poblar con algunos datos del paseador (nombre, etc.) en lugar de solo el ID
+        ad['walker_id'] = str(ad['walker_id'])
         ads_list.append(ad)
     return jsonify(ads_list), 200
 
 
-@advertisements_bp.route('', methods=['PUT']) # Actualizar mi anuncio
+@advertisements_bp.route('', methods=['PUT'])
 @jwt_required()
 @role_required('walker')
 def update_my_advertisement():
@@ -106,7 +103,7 @@ def update_my_advertisement():
     else:
         return jsonify({"msg": "Anuncio no encontrado. Créalo primero."}), 404
 
-@advertisements_bp.route('', methods=['DELETE']) # Eliminar mi anuncio
+@advertisements_bp.route('', methods=['DELETE'])
 @jwt_required()
 @role_required('walker')
 def delete_my_advertisement():

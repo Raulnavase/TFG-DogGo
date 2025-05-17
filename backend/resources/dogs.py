@@ -6,10 +6,6 @@ from utils.decorators import role_required
 
 dogs_bp = Blueprint('dogs', __name__, url_prefix='/dogs')
 
-# Necesitamos obtener el _id del usuario, no solo el email.
-# Podríamos guardar el user_id en el token o hacer una consulta extra.
-# Para simplificar, haremos una consulta extra.
-
 def get_user_id_from_email(email):
     user = mongo.db.users.find_one({"email": email})
     return user['_id'] if user else None
@@ -39,7 +35,12 @@ def add_dog():
         "owner_id": owner_id
     }
     result = mongo.db.dogs.insert_one(dog_data)
-    return jsonify({"msg": "Perro añadido exitosamente", "dog_id": str(result.inserted_id)}), 201
+    dog_data['_id'] = str(result.inserted_id)
+    dog_data['owner_id'] = str(dog_data['owner_id'])
+    return jsonify({
+        "msg": "Perro añadido exitosamente",
+        "dog": dog_data
+    }), 201
 
 @dogs_bp.route('', methods=['GET'])
 @jwt_required()
