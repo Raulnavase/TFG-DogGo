@@ -63,8 +63,10 @@ def get_my_advertisement():
         return jsonify({"msg": "No tienes un anuncio creado."}), 404
 
 @advertisements_bp.route('/all', methods=['GET'])
+@jwt_required()
+@role_required('owner')
 def get_all_advertisements():
-    ads_cursor = mongo.db.advertisements.find({})
+    ads_cursor = mongo.db.advertisements.find({"paused": False})
     ads_list = []
     for ad in ads_cursor:
         ad['_id'] = str(ad['_id'])

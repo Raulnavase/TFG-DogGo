@@ -33,6 +33,12 @@ const router = createRouter({
       component: () => import('../views/WalkerProfileView.vue'),
       meta: { requiresAuth: true, role: 'walker' },
     },
+    {
+      path: '/active-walks',
+      name: 'active-walks',
+      component: () => import('../views/ActiveWalksView.vue'),
+      meta: { requiresAuth: true, role: 'owner' },
+    },
   ],
 })
 
