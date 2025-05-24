@@ -4,6 +4,7 @@
       <h1>¡Hola, {{ authStore.userName }}! - Perfil de Dueño</h1>
       <div class="nav-buttons">
         <button @click="goToHome">Inicio</button>
+        <button @click="goToActiveWalks">Paseos Activos</button>
         <button @click="logout">Cerrar sesión</button>
       </div>
     </header>
@@ -106,6 +107,20 @@
       <button @click="authStore.deleteDog">Sí, eliminar</button>
       <button @click="authStore.cancelDelete">Cancelar</button>
     </div>
+
+    <h2>Paseos Programados</h2>
+    <div v-if="bookings.length > 0">
+      <ul>
+        <li v-for="booking in bookings" :key="booking._id">
+          Paseo con {{ booking.walker_name }} el {{ formatDate(booking.date) }} para
+          {{ booking.dog_name }}
+        </li>
+      </ul>
+    </div>
+    <div v-else>
+      <p>No tienes paseos programados.</p>
+      <button @click="goToActiveWalks">Buscar paseos</button>
+    </div>
   </div>
   <div v-else>
     <p>Cargando perfil...</p>
@@ -117,6 +132,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useDogStore } from '@/stores/dog'
+import { bookingsGet } from '../../api/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -129,9 +145,14 @@ const customBreedAdd = ref('')
 const customBreedEdit = ref('')
 const selectedBreedAdd = ref('')
 const selectedBreedEdit = ref('')
+const bookings = ref([])
 
 const goToHome = () => {
   router.push({ name: 'index' })
+}
+
+const goToActiveWalks = () => {
+  router.push({ name: 'active-walks' })
 }
 
 const fetchBreeds = async () => {
@@ -150,9 +171,23 @@ const fetchBreeds = async () => {
   breeds.value = dogStore.breeds
 }
 
+const fetchBookings = async () => {
+  try {
+    const response = await bookingsGet('/owner')
+    bookings.value = response.data
+  } catch (error) {
+    console.error('Error al cargar paseos:', error.response?.data?.msg || error.message)
+  }
+}
+
 const capitalizeFirstLetter = (string) => {
   if (!string) return string
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
+}
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 const handleBreedChange = (formType) => {
@@ -192,6 +227,7 @@ onMounted(async () => {
   } else {
     await authStore.fetchDogs()
     await fetchBreeds()
+    await fetchBookings()
   }
 })
 
@@ -232,6 +268,10 @@ button:hover {
   color: white;
 }
 .nav-buttons button:nth-child(2) {
+  background-color: #007bff;
+  color: white;
+}
+.nav-buttons button:nth-child(3) {
   background-color: #dc3545;
   color: white;
 }

@@ -21,6 +21,13 @@ const adsApi = axios.create({
   },
 })
 
+const bookingsApi = axios.create({
+  baseURL: 'http://127.0.0.1:5000/bookings',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
 const addTokenInterceptor = (instance) => {
   instance.interceptors.request.use((config) => {
     const token = localStorage.getItem('accessToken')
@@ -34,6 +41,7 @@ const addTokenInterceptor = (instance) => {
 addTokenInterceptor(authApi)
 addTokenInterceptor(dogsApi)
 addTokenInterceptor(adsApi)
+addTokenInterceptor(bookingsApi)
 
 export const authPost = (url, data) => authApi.post(url, data)
 export const dogsPost = (url, data, config = {}) =>
@@ -49,5 +57,7 @@ export const adsPut = (url, data) => adsApi.put(url, data)
 export const adsDelete = (url) => adsApi.delete(url)
 export const adsPatch = (url, data, config = {}) =>
   adsApi.request({ ...config, url, data, method: 'PATCH' })
+
+export const bookingsGet = (url) => bookingsApi.get(url)
 
 export default authApi
