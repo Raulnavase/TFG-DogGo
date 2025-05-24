@@ -9,16 +9,16 @@
     </header>
 
     <h2>Tu Anuncio</h2>
-    <div v-if="walkerAdStore.loading">
+    <!-- <div v-if="walkerAdStore.loading">
       <p>Cargando anuncio...</p>
-    </div>
-    <div v-else-if="walkerAdStore.walkerAd">
+    </div> -->
+    <div v-if="walkerAdStore.walkerAd">
       <div class="ad-card">
         <p><strong>Biografía:</strong> {{ walkerAdStore.walkerAd.biography }}</p>
         <p><strong>Máximo de perros por paseo:</strong> {{ walkerAdStore.walkerAd.maxDogs }}</p>
         <p><strong>Localidad:</strong> {{ walkerAdStore.walkerAd.locality }}</p>
         <p><strong>Estado:</strong> {{ walkerAdStore.walkerAd.paused ? 'Pausado' : 'Activo' }}</p>
-        <button @click="walkerAdStore.togglePauseWalkerAd">
+        <button @click="handlePauseToggle">
           {{ walkerAdStore.walkerAd.paused ? 'Activar Anuncio' : 'Pausar Anuncio' }}
         </button>
         <button @click="toggleEditAdForm(walkerAdStore.walkerAd)">Editar Anuncio</button>
@@ -172,10 +172,20 @@ const validateAndUpdateAd = async () => {
     return
   }
   await walkerAdStore.updateWalkerAd(editAd.value)
+  if (!walkerAdStore.error) {
+    showEditAdForm.value = false
+  }
 }
 
 const showDeleteConfirmation = () => {
   showDeleteConfirm.value = true
+  showEditAdForm.value = false
+  showAddAdForm.value = false
+}
+
+const handlePauseToggle = async () => {
+  showEditAdForm.value = false
+  await walkerAdStore.togglePauseWalkerAd()
 }
 
 const deleteAd = async () => {
