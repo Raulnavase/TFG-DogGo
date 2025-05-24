@@ -1,7 +1,12 @@
 <template>
   <div v-if="authStore.isLoggedIn && authStore.user">
-    <h1>¡Hola, {{ authStore.userName }}! - Perfil de Dueño</h1>
-    <button @click="logout">Cerrar sesión</button>
+    <header>
+      <h1>¡Hola, {{ authStore.userName }}! - Perfil de Dueño</h1>
+      <div class="nav-buttons">
+        <button @click="goToHome">Inicio</button>
+        <button @click="logout">Cerrar sesión</button>
+      </div>
+    </header>
 
     <h2>Tus Perros</h2>
     <div v-if="authStore.dogs.length > 0">
@@ -36,9 +41,7 @@
           @change="handleBreedChange('add')"
         >
           <option value="" disabled>Selecciona una raza</option>
-          <option v-for="breed in breeds" :key="breed" :value="breed">
-            {{ breed }}
-          </option>
+          <option v-for="breed in breeds" :key="breed" :value="breed">{{ breed }}</option>
           <option value="Otra">Otra</option>
         </select>
         <input
@@ -75,9 +78,7 @@
           @change="handleBreedChange('edit')"
         >
           <option value="" disabled>Selecciona una raza</option>
-          <option v-for="breed in breeds" :key="breed" :value="breed">
-            {{ breed }}
-          </option>
+          <option v-for="breed in breeds" :key="breed" :value="breed">{{ breed }}</option>
           <option value="Otra">Otra</option>
         </select>
         <input
@@ -128,6 +129,10 @@ const customBreedAdd = ref('')
 const customBreedEdit = ref('')
 const selectedBreedAdd = ref('')
 const selectedBreedEdit = ref('')
+
+const goToHome = () => {
+  router.push({ name: 'index' })
+}
 
 const fetchBreeds = async () => {
   if (dogStore.breeds.length === 0) {
@@ -197,6 +202,16 @@ const logout = async () => {
 </script>
 
 <style scoped>
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+}
 h1,
 h2,
 h3 {
@@ -212,12 +227,12 @@ button {
 button:hover {
   opacity: 0.9;
 }
-button:nth-child(1) {
-  background-color: #dc3545;
+.nav-buttons button:nth-child(1) {
+  background-color: #6c757d;
   color: white;
 }
-button:nth-child(2) {
-  background-color: #007bff;
+.nav-buttons button:nth-child(2) {
+  background-color: #dc3545;
   color: white;
 }
 form {

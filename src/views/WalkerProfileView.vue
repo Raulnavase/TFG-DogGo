@@ -1,7 +1,12 @@
 <template>
   <div v-if="authStore.isLoggedIn && authStore.user">
-    <h1>¡Hola, {{ authStore.userName }}! - Perfil de Paseador</h1>
-    <button @click="logout">Cerrar sesión</button>
+    <header>
+      <h1>¡Hola, {{ authStore.userName }}! - Perfil de Paseador</h1>
+      <div class="nav-buttons">
+        <button @click="goToHome">Inicio</button>
+        <button @click="logout">Cerrar sesión</button>
+      </div>
+    </header>
 
     <h2>Tu Anuncio</h2>
     <div v-if="walkerAdStore.walkerAd">
@@ -87,6 +92,10 @@ const showEditAdForm = ref(false)
 const showDeleteConfirm = ref(false)
 const newAd = ref({ biography: '', maxDogs: '', locality: '' })
 const editAd = ref({ biography: '', maxDogs: '', locality: '' })
+
+const goToHome = () => {
+  router.push({ name: 'index' })
+}
 
 onMounted(async () => {
   authStore.initializeAuth()
@@ -177,6 +186,16 @@ const cancelDelete = () => {
 </script>
 
 <style scoped>
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+}
 h1,
 h2,
 h3 {
@@ -192,16 +211,12 @@ button {
 button:hover {
   opacity: 0.9;
 }
-button:nth-child(1) {
-  background-color: #dc3545;
-  color: white;
-}
-button:nth-child(2) {
-  background-color: #007bff;
-  color: white;
-}
-button:nth-child(3) {
+.nav-buttons button:nth-child(1) {
   background-color: #6c757d;
+  color: white;
+}
+.nav-buttons button:nth-child(2) {
+  background-color: #dc3545;
   color: white;
 }
 form {
