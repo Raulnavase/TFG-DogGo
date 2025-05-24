@@ -42,7 +42,18 @@
       </div>
       <div>
         <label for="add-locality">Localidad:</label>
-        <input type="text" id="add-locality" v-model="newAd.locality" required />
+        <select id="add-locality" v-model="newAd.locality" required>
+          <option value="" disabled>Selecciona una provincia</option>
+          <optgroup v-for="comunidad in comunidades" :key="comunidad" :label="comunidad">
+            <option
+              v-for="provincia in provinciasPorComunidad[comunidad]"
+              :key="provincia"
+              :value="provincia"
+            >
+              {{ provincia }}
+            </option>
+          </optgroup>
+        </select>
       </div>
       <button type="submit">Crear Anuncio</button>
       <p v-if="walkerAdStore.error" class="error-message">{{ walkerAdStore.error }}</p>
@@ -61,7 +72,18 @@
       </div>
       <div>
         <label for="edit-locality">Localidad:</label>
-        <input type="text" id="edit-locality" v-model="editAd.locality" required />
+        <select id="edit-locality" v-model="editAd.locality" required>
+          <option value="" disabled>Selecciona una provincia</option>
+          <optgroup v-for="comunidad in comunidades" :key="comunidad" :label="comunidad">
+            <option
+              v-for="provincia in provinciasPorComunidad[comunidad]"
+              :key="provincia"
+              :value="provincia"
+            >
+              {{ provincia }}
+            </option>
+          </optgroup>
+        </select>
       </div>
       <button type="submit">Guardar Cambios</button>
       <button type="button" @click="toggleEditAdForm(null)">Cancelar</button>
@@ -103,6 +125,10 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useWalkerAdStore } from '@/stores/walkerAd'
 import { bookingsGet } from '../../api/api'
+import provinces from '@/data/provinces.json'
+
+const comunidades = Object.keys(provinces)
+const provinciasPorComunidad = provinces
 
 const router = useRouter()
 const authStore = useAuthStore()

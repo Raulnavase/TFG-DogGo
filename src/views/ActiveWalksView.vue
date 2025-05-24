@@ -11,10 +11,16 @@
 
     <div class="filters">
       <select v-model="selectedLocality" @change="fetchAds">
-        <option value="">Todas las ciudades</option>
-        <option v-for="locality in localities" :key="locality" :value="locality">
-          {{ locality }}
-        </option>
+        <option value="">Todas las provincias</option>
+        <optgroup v-for="comunidad in comunidades" :key="comunidad" :label="comunidad">
+          <option
+            v-for="provincia in provinciasPorComunidad[comunidad]"
+            :key="provincia"
+            :value="provincia"
+          >
+            {{ provincia }}
+          </option>
+        </optgroup>
       </select>
       <button @click="resetFilters">Quitar filtros</button>
     </div>
@@ -57,11 +63,14 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { adsGet } from '../../api/api'
+import provinces from '@/data/provinces.json'
+
+const comunidades = Object.keys(provinces)
+const provinciasPorComunidad = provinces
 
 const router = useRouter()
 const authStore = useAuthStore()
 const ads = ref([])
-const localities = ref([])
 const selectedLocality = ref('')
 const loading = ref(false)
 const showChat = ref(false)
@@ -77,10 +86,6 @@ const fetchAds = async () => {
       : '/all'
     const response = await adsGet(url)
     ads.value = response.data
-    if (!localities.value.length) {
-      const uniqueLocalities = [...new Set(response.data.map((ad) => ad.locality))].sort()
-      localities.value = uniqueLocalities
-    }
   } catch (error) {
     console.error('Error al cargar anuncios:', error.response?.data?.msg || error.message)
   } finally {
