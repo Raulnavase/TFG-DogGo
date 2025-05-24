@@ -9,22 +9,25 @@
     </header>
 
     <h2>Tu Anuncio</h2>
-    <div v-if="walkerAdStore.walkerAd">
-      <p><strong>Biografía:</strong> {{ walkerAdStore.walkerAd.biography }}</p>
-      <p><strong>Máximo de perros por paseo:</strong> {{ walkerAdStore.walkerAd.maxDogs }}</p>
-      <p><strong>Localidad:</strong> {{ walkerAdStore.walkerAd.locality }}</p>
-      <p><strong>Estado:</strong> {{ walkerAdStore.walkerAd.paused ? 'Pausado' : 'Activo' }}</p>
-      <button @click="walkerAdStore.togglePauseWalkerAd">
-        {{ walkerAdStore.walkerAd.paused ? 'Activar Anuncio' : 'Pausar Anuncio' }}
-      </button>
-      <button @click="toggleEditAdForm(walkerAdStore.walkerAd)">Editar Anuncio</button>
-      <button @click="showDeleteConfirmation">Eliminar Anuncio</button>
-    </div>
-    <div v-else-if="walkerAdStore.loading">
+    <div v-if="walkerAdStore.loading">
       <p>Cargando anuncio...</p>
+    </div>
+    <div v-else-if="walkerAdStore.walkerAd">
+      <div class="ad-card">
+        <p><strong>Biografía:</strong> {{ walkerAdStore.walkerAd.biography }}</p>
+        <p><strong>Máximo de perros por paseo:</strong> {{ walkerAdStore.walkerAd.maxDogs }}</p>
+        <p><strong>Localidad:</strong> {{ walkerAdStore.walkerAd.locality }}</p>
+        <p><strong>Estado:</strong> {{ walkerAdStore.walkerAd.paused ? 'Pausado' : 'Activo' }}</p>
+        <button @click="walkerAdStore.togglePauseWalkerAd">
+          {{ walkerAdStore.walkerAd.paused ? 'Activar Anuncio' : 'Pausar Anuncio' }}
+        </button>
+        <button @click="toggleEditAdForm(walkerAdStore.walkerAd)">Editar Anuncio</button>
+        <button @click="showDeleteConfirmation">Eliminar Anuncio</button>
+      </div>
     </div>
     <div v-else>
       <p>No tienes un anuncio creado.</p>
+      <p v-if="walkerAdStore.error" class="error-message">{{ walkerAdStore.error }}</p>
       <button @click="toggleAddAdForm">Crear Anuncio</button>
     </div>
 
@@ -71,6 +74,23 @@
       <button @click="deleteAd">Sí, eliminar</button>
       <button @click="cancelDelete">Cancelar</button>
     </div>
+
+    <h2>Paseos Programados</h2>
+    <div v-if="loadingBookings">
+      <p>Cargando paseos...</p>
+    </div>
+    <div v-else-if="bookings.length > 0">
+      <ul>
+        <li v-for="booking in bookings" :key="booking._id">
+          Paseo con {{ booking.owner_name }} el {{ formatDate(booking.date) }} para
+          {{ booking.dog_name }}
+        </li>
+      </ul>
+    </div>
+    <div v-else>
+      <p>No tienes paseos programados.</p>
+      <p v-if="bookingsError" class="error-message">{{ bookingsError }}</p>
+    </div>
   </div>
   <div v-else>
     <p>Cargando perfil...</p>
@@ -82,6 +102,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useWalkerAdStore } from '@/stores/walkerAd'
+import { bookingsGet } from '../../api/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -92,21 +113,13 @@ const showEditAdForm = ref(false)
 const showDeleteConfirm = ref(false)
 const newAd = ref({ biography: '', maxDogs: '', locality: '' })
 const editAd = ref({ biography: '', maxDogs: '', locality: '' })
+const bookings = ref([])
+const loadingBookings = ref(false)
+const bookingsError = ref(null)
 
 const goToHome = () => {
   router.push({ name: 'index' })
 }
-
-onMounted(async () => {
-  authStore.initializeAuth()
-  if (!authStore.isLoggedIn) {
-    router.push({ name: 'login' })
-  } else if (authStore.userRole === 'walker') {
-    await walkerAdStore.fetchWalkerAd()
-  } else {
-    router.push({ name: 'index' })
-  }
-})
 
 const logout = async () => {
   await authStore.logoutUser()
@@ -147,10 +160,6 @@ const validateAndCreateAd = async () => {
     return
   }
   await walkerAdStore.createWalkerAd(newAd.value)
-  if (walkerAdStore.success) {
-    showAddAdForm.value = false
-    newAd.value = { biography: '', maxDogs: '', locality: '' }
-  }
 }
 
 const validateAndUpdateAd = async () => {
@@ -163,10 +172,6 @@ const validateAndUpdateAd = async () => {
     return
   }
   await walkerAdStore.updateWalkerAd(editAd.value)
-  if (walkerAdStore.success) {
-    showEditAdForm.value = false
-    editAd.value = { biography: '', maxDogs: '', locality: '' }
-  }
 }
 
 const showDeleteConfirmation = () => {
@@ -175,14 +180,44 @@ const showDeleteConfirmation = () => {
 
 const deleteAd = async () => {
   await walkerAdStore.deleteWalkerAd()
-  if (walkerAdStore.success) {
-    showDeleteConfirm.value = false
-  }
+  showDeleteConfirm.value = false
 }
 
 const cancelDelete = () => {
   showDeleteConfirm.value = false
 }
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+const fetchBookings = async () => {
+  loadingBookings.value = true
+  try {
+    const response = await bookingsGet('/walker')
+    bookings.value = response.data
+    bookingsError.value = null
+  } catch (error) {
+    bookingsError.value = error.response?.data?.msg || 'Error al cargar paseos'
+    console.error('Error al cargar paseos:', bookingsError.value)
+  } finally {
+    loadingBookings.value = false
+  }
+}
+
+onMounted(async () => {
+  authStore.initializeAuth()
+  if (!authStore.isLoggedIn) {
+    router.push({ name: 'login' })
+  } else if (authStore.userRole === 'walker') {
+    await walkerAdStore.fetchWalkerAd()
+    console.log('Anuncio en vista:', walkerAdStore.walkerAd)
+    await fetchBookings()
+  } else {
+    router.push({ name: 'index' })
+  }
+})
 </script>
 
 <style scoped>
@@ -216,6 +251,24 @@ button:hover {
   color: white;
 }
 .nav-buttons button:nth-child(2) {
+  background-color: #dc3545;
+  color: white;
+}
+.ad-card {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+}
+.ad-card button:nth-child(1) {
+  background-color: #007bff;
+  color: white;
+}
+.ad-card button:nth-child(2) {
+  background-color: #28a745;
+  color: white;
+}
+.ad-card button:nth-child(3) {
   background-color: #dc3545;
   color: white;
 }
@@ -268,5 +321,12 @@ textarea {
 .confirm-dialog button:last-child {
   background-color: #6c757d;
   color: white;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  padding: 10px 0;
 }
 </style>
