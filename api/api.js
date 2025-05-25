@@ -44,6 +44,7 @@ addTokenInterceptor(adsApi)
 addTokenInterceptor(bookingsApi)
 
 export const authPost = (url, data) => authApi.post(url, data)
+export const authDelete = (url) => authApi.delete(url)
 export const dogsPost = (url, data, config = {}) =>
   dogsApi.request({ ...config, url, data, method: 'POST' })
 export const dogsGet = (url) => dogsApi.get(url)

@@ -5,13 +5,33 @@
       <div class="nav-buttons">
         <button @click="goToHome">Inicio</button>
         <button @click="logout">Cerrar sesión</button>
+        <button @click="showPersonalInfo = true">Información personal</button>
       </div>
     </header>
 
+    <div v-if="showPersonalInfo" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Información personal</h2>
+        <ul>
+          <li><strong>Nombre:</strong> {{ authStore.user?.name }}</li>
+          <li><strong>Apellido:</strong> {{ authStore.user?.last_name }}</li>
+          <li><strong>Email:</strong> {{ authStore.user?.email }}</li>
+          <li><strong>Rol:</strong> {{ authStore.user?.role }}</li>
+        </ul>
+        <button class="delete-btn" @click="confirmDelete = true">Eliminar cuenta</button>
+        <button @click="showPersonalInfo = false">Cerrar</button>
+      </div>
+    </div>
+
+    <div v-if="confirmDelete" class="modal-overlay">
+      <div class="modal-content">
+        <p>¿Seguro que quieres eliminar tu cuenta? Esta acción es irreversible.</p>
+        <button class="delete-btn" @click="deleteAccount">Sí, eliminar</button>
+        <button @click="confirmDelete = false">Cancelar</button>
+      </div>
+    </div>
+
     <h2>Tu Anuncio</h2>
-    <!-- <div v-if="walkerAdStore.loading">
-      <p>Cargando anuncio...</p>
-    </div> -->
     <div v-if="walkerAdStore.walkerAd">
       <div class="ad-card">
         <p><strong>Biografía:</strong> {{ walkerAdStore.walkerAd.biography }}</p>
@@ -133,6 +153,8 @@ const provinciasPorComunidad = provinces
 const router = useRouter()
 const authStore = useAuthStore()
 const walkerAdStore = useWalkerAdStore()
+const showPersonalInfo = ref(false)
+const confirmDelete = ref(false)
 
 const showAddAdForm = ref(false)
 const showEditAdForm = ref(false)
@@ -145,6 +167,15 @@ const bookingsError = ref(null)
 
 const goToHome = () => {
   router.push({ name: 'index' })
+}
+
+const deleteAccount = async () => {
+  try {
+    await authStore.deleteUserAccount()
+    router.push({ name: 'index' })
+  } catch (e) {
+    alert('Error al eliminar la cuenta')
+  }
 }
 
 const logout = async () => {

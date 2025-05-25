@@ -6,8 +6,31 @@
         <button @click="goToHome">Inicio</button>
         <button @click="goToActiveWalks">Paseos Activos</button>
         <button @click="logout">Cerrar sesión</button>
+        <button @click="showPersonalInfo = true">Información personal</button>
       </div>
     </header>
+
+    <div v-if="showPersonalInfo" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Información personal</h2>
+        <ul>
+          <li><strong>Nombre:</strong> {{ authStore.user?.name }}</li>
+          <li><strong>Apellido:</strong> {{ authStore.user?.last_name }}</li>
+          <li><strong>Email:</strong> {{ authStore.user?.email }}</li>
+          <li><strong>Rol:</strong> {{ authStore.user?.role }}</li>
+        </ul>
+        <button class="delete-btn" @click="confirmDelete = true">Eliminar cuenta</button>
+        <button @click="showPersonalInfo = false">Cerrar</button>
+      </div>
+    </div>
+
+    <div v-if="confirmDelete" class="modal-overlay">
+      <div class="modal-content">
+        <p>¿Seguro que quieres eliminar tu cuenta? Esta acción es irreversible.</p>
+        <button class="delete-btn" @click="deleteAccount">Sí, eliminar</button>
+        <button @click="confirmDelete = false">Cancelar</button>
+      </div>
+    </div>
 
     <h2>Tus Perros</h2>
     <div v-if="authStore.dogs.length > 0">
@@ -137,6 +160,8 @@ import { bookingsGet } from '../../api/api'
 const router = useRouter()
 const authStore = useAuthStore()
 const dogStore = useDogStore()
+const showPersonalInfo = ref(false)
+const confirmDelete = ref(false)
 
 const breeds = ref([])
 const showCustomBreedAdd = ref(false)
@@ -149,6 +174,15 @@ const bookings = ref([])
 
 const goToHome = () => {
   router.push({ name: 'index' })
+}
+
+const deleteAccount = async () => {
+  try {
+    await authStore.deleteUserAccount()
+    router.push({ name: 'index' })
+  } catch (e) {
+    alert('Error al eliminar la cuenta')
+  }
 }
 
 const goToActiveWalks = () => {

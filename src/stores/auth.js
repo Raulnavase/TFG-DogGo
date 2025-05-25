@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { authPost, dogsPost, dogsGet, dogsPut, dogsDelete } from '../../api/api'
+import { authPost, dogsPost, dogsGet, dogsPut, dogsDelete, authDelete } from '../../api/api'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -81,6 +81,38 @@ export const useAuthStore = defineStore('auth', {
       } finally {
         this.isLoggingIn = false
       }
+    },
+
+    async deleteUserAccount() {
+      try {
+        await authDelete('/user')
+        this.isAuthenticated = false
+        this.role = null
+        this.user = null
+        this.dogs = []
+        this.showAddDogForm = false
+        this.newDog = { name: '', breed: '', age: '' }
+        this.addDogError = null
+        this.addDogSuccess = null
+        this.showEditDogForm = false
+        this.editDog = { _id: '', name: '', breed: '', age: '' }
+        this.editDogError = null
+        this.editDogSuccess = null
+        this.showDeleteConfirm = false
+        this.dogToDelete = null
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('userRole')
+        localStorage.removeItem('user')
+        console.log('Cuenta eliminada correctamente')
+      } catch (error) {
+        console.error('Error al eliminar la cuenta:', error)
+        throw error
+      }
+    },
+
+    cancelDelete() {
+      this.showDeleteConfirm = false
+      this.dogToDelete = null
     },
 
     async logoutUser() {
