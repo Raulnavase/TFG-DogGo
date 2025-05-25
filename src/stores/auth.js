@@ -45,10 +45,8 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await authPost('/register', userData)
         this.registrationSuccess = true
-        console.log('Registro exitoso:', response.data)
       } catch (error) {
         this.registrationError = error.response?.data?.msg || 'Error al registrar el usuario'
-        console.error('Error de registro:', error)
         throw error
       } finally {
         this.isRegistering = false
@@ -62,11 +60,14 @@ export const useAuthStore = defineStore('auth', {
         const response = await authPost('/login', credentials)
         this.isAuthenticated = true
         this.role = response.data.role
-        this.user = { name: response.data.name }
+        this.user = {
+          name: response.data.name,
+          last_name: response.data.last_name,
+          email: response.data.email,
+        }
         localStorage.setItem('accessToken', response.data.access_token)
         localStorage.setItem('userRole', response.data.role)
         localStorage.setItem('user', JSON.stringify(this.user))
-        console.log('Inicio de sesión exitoso:', response.data)
         return true
       } catch (error) {
         this.loginError = error.response?.data?.msg || 'Credenciales inválidas'
@@ -76,10 +77,34 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('userRole')
         localStorage.removeItem('user')
-        console.error('Error al iniciar sesión:', error)
         throw error
       } finally {
         this.isLoggingIn = false
+      }
+    },
+
+    async updatePersonalData(data) {
+      try {
+        const response = await authPost('/update', data)
+        if (response.status === 200) {
+          this.user = { ...this.user, ...data }
+          localStorage.setItem('user', JSON.stringify(this.user))
+        } else {
+          throw new Error(response.data.msg || 'Error al actualizar datos')
+        }
+      } catch (error) {
+        throw error
+      }
+    },
+
+    async changePassword({ oldPassword, newPassword }) {
+      try {
+        const response = await authPost('/change-password', { oldPassword, newPassword })
+        if (response.status !== 200) {
+          throw new Error(response.data.msg || 'Error al cambiar la contraseña')
+        }
+      } catch (error) {
+        throw error
       }
     },
 
@@ -103,9 +128,7 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('userRole')
         localStorage.removeItem('user')
-        console.log('Cuenta eliminada correctamente')
       } catch (error) {
-        console.error('Error al eliminar la cuenta:', error)
         throw error
       }
     },
@@ -118,10 +141,7 @@ export const useAuthStore = defineStore('auth', {
     async logoutUser() {
       try {
         await authPost('/logout', {})
-        console.log('Cierre de sesión exitoso desde el backend')
-      } catch (error) {
-        console.error('Error al cerrar sesión en el backend:', error)
-      }
+      } catch (error) {}
       this.isAuthenticated = false
       this.role = null
       this.user = null
@@ -139,7 +159,6 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('accessToken')
       localStorage.removeItem('userRole')
       localStorage.removeItem('user')
-      console.log('Usuario ha cerrado sesión')
     },
 
     toggleAddDogForm() {
@@ -169,7 +188,6 @@ export const useAuthStore = defineStore('auth', {
         }
       } catch (error) {
         this.addDogError = error.response?.data?.msg || 'Error de conexión al servidor.'
-        console.error('Error al agregar perro:', error)
       }
     },
 
@@ -182,11 +200,9 @@ export const useAuthStore = defineStore('auth', {
           this.dogs = response.data
         } else {
           this.addDogError = response.data.msg || 'Error al obtener los perros.'
-          console.error('Error al obtener la lista de perros:', response.data.msg)
         }
       } catch (error) {
         this.addDogError = error.response?.data?.msg || 'Error al conectar con el servidor.'
-        console.error('Error al conectar con el servidor para obtener los perros:', error)
       }
     },
 
@@ -222,7 +238,6 @@ export const useAuthStore = defineStore('auth', {
         }
       } catch (error) {
         this.editDogError = error.response?.data?.msg || 'Error de conexión al servidor.'
-        console.error('Error al actualizar perro:', error)
       }
     },
 
@@ -247,13 +262,7 @@ export const useAuthStore = defineStore('auth', {
         }
       } catch (error) {
         this.addDogError = error.response?.data?.msg || 'Error de conexión al servidor.'
-        console.error('Error al eliminar perro:', error)
       }
-    },
-
-    cancelDelete() {
-      this.showDeleteConfirm = false
-      this.dogToDelete = null
     },
   },
 

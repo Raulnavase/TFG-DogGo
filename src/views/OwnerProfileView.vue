@@ -13,14 +13,57 @@
     <div v-if="showPersonalInfo" class="modal-overlay">
       <div class="modal-content">
         <h2>Información personal</h2>
-        <ul>
-          <li><strong>Nombre:</strong> {{ authStore.user?.name }}</li>
-          <li><strong>Apellido:</strong> {{ authStore.user?.last_name }}</li>
-          <li><strong>Email:</strong> {{ authStore.user?.email }}</li>
-          <li><strong>Rol:</strong> {{ authStore.user?.role }}</li>
-        </ul>
-        <button class="delete-btn" @click="confirmDelete = true">Eliminar cuenta</button>
-        <button @click="showPersonalInfo = false">Cerrar</button>
+        <template v-if="!editPersonal">
+          <ul>
+            <li><strong>Nombre:</strong> {{ authStore.user?.name }}</li>
+            <li><strong>Apellido:</strong> {{ authStore.user?.last_name }}</li>
+            <li><strong>Email:</strong> {{ authStore.user?.email }}</li>
+          </ul>
+          <button @click="editPersonal = true">Editar datos</button>
+          <button @click="showChangePassword = true">Cambiar contraseña</button>
+          <button class="delete-btn" @click="confirmDelete = true">Eliminar cuenta</button>
+          <button @click="showPersonalInfo = false">Cerrar</button>
+        </template>
+        <template v-else>
+          <form @submit.prevent="savePersonalData">
+            <div>
+              <label>Nombre:</label>
+              <input v-model="editName" required />
+            </div>
+            <div>
+              <label>Apellido:</label>
+              <input v-model="editLastName" required />
+            </div>
+            <div>
+              <label>Email:</label>
+              <input v-model="editEmail" type="email" required />
+            </div>
+            <button type="submit">Guardar</button>
+            <button type="button" @click="cancelEditPersonal">Cancelar</button>
+            <p v-if="personalError" class="error-message">{{ personalError }}</p>
+            <p v-if="personalSuccess" class="success-message">{{ personalSuccess }}</p>
+          </form>
+        </template>
+        <div v-if="showChangePassword">
+          <form @submit.prevent="changePassword">
+            <div>
+              <label>Contraseña actual:</label>
+              <input v-model="oldPassword" type="password" required />
+            </div>
+            <div>
+              <label>Nueva contraseña:</label>
+              <input v-model="newPassword" type="password" required />
+            </div>
+            <div>
+              <label>Repite nueva contraseña:</label>
+              <input v-model="repeatNewPassword" type="password" required />
+            </div>
+            <button type="submit">Cambiar contraseña</button>
+            <button type="button" @click="showChangePassword = false">Cancelar</button>
+            <p v-if="passwordError" class="error-message">{{ passwordError }}</p>
+            <p v-if="passwordSuccess" class="success-message">{{ passwordSuccess }}</p>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -151,7 +194,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useDogStore } from '@/stores/dog'
@@ -161,7 +204,19 @@ const router = useRouter()
 const authStore = useAuthStore()
 const dogStore = useDogStore()
 const showPersonalInfo = ref(false)
+const editPersonal = ref(false)
+const showChangePassword = ref(false)
 const confirmDelete = ref(false)
+const editName = ref(authStore.user?.name || '')
+const editLastName = ref(authStore.user?.last_name || '')
+const editEmail = ref(authStore.user?.email || '')
+const personalError = ref('')
+const personalSuccess = ref('')
+const passwordError = ref('')
+const passwordSuccess = ref('')
+const oldPassword = ref('')
+const newPassword = ref('')
+const repeatNewPassword = ref('')
 
 const breeds = ref([])
 const showCustomBreedAdd = ref(false)
@@ -171,6 +226,61 @@ const customBreedEdit = ref('')
 const selectedBreedAdd = ref('')
 const selectedBreedEdit = ref('')
 const bookings = ref([])
+
+watch(
+  () => showPersonalInfo.value,
+  (val) => {
+    if (val && authStore.user) {
+      editName.value = authStore.user.name
+      editLastName.value = authStore.user.last_name
+      editEmail.value = authStore.user.email
+    }
+  },
+)
+
+const savePersonalData = async () => {
+  personalError.value = ''
+  personalSuccess.value = ''
+  try {
+    await authStore.updatePersonalData({
+      name: editName.value,
+      last_name: editLastName.value,
+      email: editEmail.value,
+    })
+    personalSuccess.value = 'Datos actualizados correctamente'
+    editPersonal.value = false
+  } catch (e) {
+    personalError.value = e?.response?.data?.msg || 'Error al actualizar los datos'
+  }
+}
+
+const cancelEditPersonal = () => {
+  editPersonal.value = false
+  personalError.value = ''
+  personalSuccess.value = ''
+}
+
+const changePassword = async () => {
+  passwordError.value = ''
+  passwordSuccess.value = ''
+  if (newPassword.value !== repeatNewPassword.value) {
+    passwordError.value = 'Las contraseñas nuevas no coinciden'
+    return
+  }
+  try {
+    await authStore.changePassword({
+      oldPassword: oldPassword.value,
+      newPassword: newPassword.value,
+    })
+    passwordSuccess.value = 'Contraseña cambiada correctamente'
+    oldPassword.value = ''
+    newPassword.value = ''
+    repeatNewPassword.value = ''
+    showChangePassword.value = false
+  } catch (e) {
+    passwordError.value = e?.response?.data?.msg || 'Error al cambiar la contraseña'
+  }
+}
 
 const goToHome = () => {
   router.push({ name: 'index' })
@@ -272,6 +382,39 @@ const logout = async () => {
 </script>
 
 <style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  min-width: 300px;
+  color: #333;
+  text-align: center;
+}
+.delete-btn {
+  background: #c0392b;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  margin: 1rem 0.5rem 0 0.5rem;
+  font-weight: bold;
+}
+.delete-btn:hover {
+  background: #e74c3c;
+}
 header {
   display: flex;
   justify-content: space-between;
