@@ -71,12 +71,13 @@ def delete_user():
     if not user:
         return jsonify({"msg": "Usuario no encontrado"}), 404
 
-    mongo.db.dogs.delete_many({"owner_id": str(user["_id"])})
+    mongo.db.dogs.delete_many({"owner_id": user["_id"]})
 
     mongo.db.advertisements.delete_many({"walker_id": user["_id"]})
 
-
-    mongo.db.bookings.delete_many({"user_id": str(user["_id"])})
+    mongo.db.bookings.delete_many({"owner_id": user["_id"]})
+    
+    mongo.db.bookings.delete_many({"walker_id": user["_id"]})
 
     mongo.db.users.delete_one({"_id": user["_id"]})
 
