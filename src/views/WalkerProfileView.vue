@@ -77,6 +77,7 @@
     <h2>Tu Anuncio</h2>
     <div v-if="walkerAdStore.walkerAd">
       <div class="ad-card">
+        <p><strong>Nombre:</strong> {{ authStore.user?.name }}</p>
         <p><strong>Biografía:</strong> {{ walkerAdStore.walkerAd.biography }}</p>
         <p><strong>Máximo de perros por paseo:</strong> {{ walkerAdStore.walkerAd.maxDogs }}</p>
         <p><strong>Localidad:</strong> {{ walkerAdStore.walkerAd.locality }}</p>

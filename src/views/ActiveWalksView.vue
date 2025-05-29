@@ -27,6 +27,7 @@
 
     <div v-if="ads.length">
       <div v-for="ad in ads" :key="ad._id" class="ad-card">
+        <p><strong>Paseador:</strong> {{ ad.walker_name }}</p>
         <p><strong>Biografía:</strong> {{ ad.biography }}</p>
         <p><strong>Máximo de perros por paseo:</strong> {{ ad.maxDogs }}</p>
         <p><strong>Localidad:</strong> {{ ad.locality }}</p>
