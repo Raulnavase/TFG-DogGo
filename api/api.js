@@ -68,4 +68,6 @@ export const requestsGet = (url) => requestsApi.get(url)
 export const requestsPatch = (url, data, config = {}) =>
   requestsApi.request({ ...config, url, data, method: 'PATCH' })
 
+export const requestsDelete = (url) => requestsApi.delete(url)
+
 export default authApi

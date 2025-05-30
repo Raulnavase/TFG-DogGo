@@ -165,7 +165,7 @@
     <div v-if="walkerRequestsLoading">Cargando...</div>
     <div v-else-if="walkerRequestsError">{{ walkerRequestsError }}</div>
     <ul v-else>
-      <li v-for="req in walkerRequests" :key="req._id">
+      <li v-for="req in walkerRequests.filter((r) => r.status !== 'rechazada')" :key="req._id">
         <div>
           <strong>Dueño:</strong> {{ req.owner_info?.name }} {{ req.owner_info?.last_name }} ({{
             req.owner_info?.email
@@ -180,11 +180,18 @@
           </ul>
         </div>
         <div>
-          <strong>Fecha:</strong> {{ req.date }} - <strong>Estado:</strong> {{ req.status }}
+          <strong>Fecha:</strong> {{ req.date }} - <strong>Estado:</strong>
+          {{ statusText(req.status) }}
         </div>
         <button v-if="req.status === 'pendiente'" @click="acceptRequest(req._id)">Aceptar</button>
         <button v-if="req.status === 'pendiente'" @click="rejectRequest(req._id)">Rechazar</button>
         <button v-if="req.status === 'aceptada'" @click="cancelRequest(req._id)">Cancelar</button>
+        <button
+          v-if="['rechazada', 'cancelada_por_owner', 'cancelada_por_walker'].includes(req.status)"
+          @click="deleteRequest(req._id)"
+        >
+          Eliminar
+        </button>
       </li>
     </ul>
   </div>
@@ -195,8 +202,25 @@ import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useWalkerAdStore } from '@/stores/walkerAd'
-import { requestsGet, requestsPatch } from '../../api/api'
+import { requestsGet, requestsPatch, requestsDelete } from '../../api/api'
 import provinces from '@/data/provinces.json'
+
+const statusText = (status) => {
+  switch (status) {
+    case 'pendiente':
+      return 'Pendiente'
+    case 'aceptada':
+      return 'Aceptada'
+    case 'rechazada':
+      return 'Rechazada'
+    case 'cancelada_por_owner':
+      return 'Cancelada por el dueño'
+    case 'cancelada_por_walker':
+      return 'Cancelada por el paseador'
+    default:
+      return status
+  }
+}
 
 const comunidades = Object.keys(provinces)
 const provinciasPorComunidad = provinces
@@ -228,6 +252,12 @@ const editAd = ref({ biography: '', maxDogs: '', locality: '' })
 const walkerRequests = ref([])
 const walkerRequestsLoading = ref(false)
 const walkerRequestsError = ref('')
+
+const deleteRequest = async (id) => {
+  await requestsDelete(`/${id}`)
+  fetchOwnerRequests && fetchOwnerRequests()
+  fetchWalkerRequests && fetchWalkerRequests()
+}
 
 const fetchWalkerRequests = async () => {
   walkerRequestsLoading.value = true

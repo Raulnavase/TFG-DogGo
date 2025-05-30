@@ -179,8 +179,34 @@
     <div v-else-if="ownerRequestsError">{{ ownerRequestsError }}</div>
     <ul v-else>
       <li v-for="req in ownerRequests" :key="req._id">
-        {{ req.date }} - {{ req.status }}
-        <button v-if="req.status === 'aceptada'" @click="cancelRequest(req._id)">Cancelar</button>
+        <div>
+          <strong>Paseador:</strong>
+          {{ req.walker_info?.name }} {{ req.walker_info?.last_name }} ({{
+            req.walker_info?.email
+          }})
+        </div>
+        <div>
+          <strong>Perros:</strong>
+          <ul>
+            <li v-for="dog in req.dogs_info" :key="dog._id">
+              {{ dog.name }} ({{ dog.breed }}, {{ dog.age }} años)
+            </li>
+          </ul>
+        </div>
+        <div>
+          <strong>Fecha:</strong> {{ req.date }} - <strong>Estado:</strong>
+          {{ statusText(req.status) }}
+        </div>
+        <button v-if="req.status === 'pendiente'" @click="cancelRequest(req._id)">Cancelar</button>
+        <button v-else-if="req.status === 'aceptada'" @click="cancelRequest(req._id)">
+          Cancelar
+        </button>
+        <button
+          v-if="['rechazada', 'cancelada_por_owner', 'cancelada_por_walker'].includes(req.status)"
+          @click="deleteRequest(req._id)"
+        >
+          Eliminar
+        </button>
       </li>
     </ul>
   </div>
@@ -194,7 +220,24 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useDogStore } from '@/stores/dog'
-import { requestsGet, requestsPatch } from '../../api/api'
+import { requestsGet, requestsPatch, requestsDelete } from '../../api/api'
+
+const statusText = (status) => {
+  switch (status) {
+    case 'pendiente':
+      return 'Pendiente'
+    case 'aceptada':
+      return 'Aceptada'
+    case 'rechazada':
+      return 'Rechazada'
+    case 'cancelada_por_owner':
+      return 'Cancelada por el dueño'
+    case 'cancelada_por_walker':
+      return 'Cancelada por el paseador'
+    default:
+      return status
+  }
+}
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -225,6 +268,12 @@ const selectedBreedEdit = ref('')
 const ownerRequests = ref([])
 const ownerRequestsLoading = ref(false)
 const ownerRequestsError = ref('')
+
+const deleteRequest = async (id) => {
+  await requestsDelete(`/${id}`)
+  fetchOwnerRequests && fetchOwnerRequests()
+  fetchWalkerRequests && fetchWalkerRequests()
+}
 
 watch(
   () => showPersonalInfo.value,

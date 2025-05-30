@@ -44,6 +44,13 @@ def create_request():
         "email": owner.get("email"),
     }
 
+    walker = mongo.db.users.find_one({"_id": ObjectId(walker_id)})
+    walker_info = {
+        "name": walker.get("name"),
+        "last_name": walker.get("last_name"),
+        "email": walker.get("email"),
+    } if walker else {}
+
     dogs_info = []
     for dog_id in dogs:
         dog = mongo.db.dogs.find_one({"_id": ObjectId(dog_id)})
@@ -63,6 +70,7 @@ def create_request():
         "dogs": [ObjectId(d) for d in dogs],
         "dogs_info": dogs_info,
         "owner_info": owner_info,
+        "walker_info": walker_info,
         "status": "pendiente",
         "created_at": datetime.utcnow()
     }
@@ -152,5 +160,23 @@ def cancel_request(request_id):
     elif user['_id'] == req['walker_id']:
         mongo.db.requests.update_one({"_id": ObjectId(request_id)}, {"$set": {"status": "cancelada_por_walker"}})
         return jsonify({"msg": "Solicitud cancelada por el paseador"}), 200
+    else:
+        return jsonify({"msg": "No autorizado"}), 403
+    
+@requests_bp.route('/<request_id>', methods=['DELETE'])
+@jwt_required()
+def delete_request(request_id):
+    current_email = get_jwt_identity()
+    user = get_user_by_email(current_email)
+    req = mongo.db.requests.find_one({"_id": ObjectId(request_id)})
+    if not req:
+        return jsonify({"msg": "Solicitud no encontrada"}), 404
+
+    if user['_id'] == req['owner_id'] or user['_id'] == req['walker_id']:
+        if req['status'] in ['rechazada', 'cancelada_por_owner', 'cancelada_por_walker']:
+            mongo.db.requests.delete_one({"_id": ObjectId(request_id)})
+            return jsonify({"msg": "Solicitud eliminada"}), 200
+        else:
+            return jsonify({"msg": "Solo puedes eliminar solicitudes canceladas o rechazadas"}), 400
     else:
         return jsonify({"msg": "No autorizado"}), 403
