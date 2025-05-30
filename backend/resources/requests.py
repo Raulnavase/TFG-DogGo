@@ -38,12 +38,31 @@ def create_request():
     if existing:
         return jsonify({"msg": "Ya tienes una solicitud pendiente o aceptada para este anuncio y fecha"}), 400
 
+    owner_info = {
+        "name": owner.get("name"),
+        "last_name": owner.get("last_name"),
+        "email": owner.get("email"),
+    }
+
+    dogs_info = []
+    for dog_id in dogs:
+        dog = mongo.db.dogs.find_one({"_id": ObjectId(dog_id)})
+        if dog:
+            dogs_info.append({
+                "_id": str(dog["_id"]),
+                "name": dog.get("name"),
+                "breed": dog.get("breed"),
+                "age": dog.get("age"),
+            })
+
     req = {
         "owner_id": owner['_id'],
         "walker_id": ObjectId(walker_id),
         "ad_id": ObjectId(ad_id),
         "date": date,
         "dogs": [ObjectId(d) for d in dogs],
+        "dogs_info": dogs_info,
+        "owner_info": owner_info,
         "status": "pendiente",
         "created_at": datetime.utcnow()
     }

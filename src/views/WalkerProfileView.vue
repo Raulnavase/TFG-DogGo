@@ -166,7 +166,22 @@
     <div v-else-if="walkerRequestsError">{{ walkerRequestsError }}</div>
     <ul v-else>
       <li v-for="req in walkerRequests" :key="req._id">
-        {{ req.date }} - {{ req.status }}
+        <div>
+          <strong>Dueño:</strong> {{ req.owner_info?.name }} {{ req.owner_info?.last_name }} ({{
+            req.owner_info?.email
+          }})
+        </div>
+        <div>
+          <strong>Perros:</strong>
+          <ul>
+            <li v-for="dog in req.dogs_info" :key="dog._id">
+              {{ dog.name }} ({{ dog.breed }}, {{ dog.age }} años)
+            </li>
+          </ul>
+        </div>
+        <div>
+          <strong>Fecha:</strong> {{ req.date }} - <strong>Estado:</strong> {{ req.status }}
+        </div>
         <button v-if="req.status === 'pendiente'" @click="acceptRequest(req._id)">Aceptar</button>
         <button v-if="req.status === 'pendiente'" @click="rejectRequest(req._id)">Rechazar</button>
         <button v-if="req.status === 'aceptada'" @click="cancelRequest(req._id)">Cancelar</button>
