@@ -174,7 +174,15 @@
       <button @click="authStore.cancelDelete">Cancelar</button>
     </div>
 
-    <h2>Paseos Programados</h2>
+    <h2>Solicitudes enviadas</h2>
+    <div v-if="ownerRequestsLoading">Cargando...</div>
+    <div v-else-if="ownerRequestsError">{{ ownerRequestsError }}</div>
+    <ul v-else>
+      <li v-for="req in ownerRequests" :key="req._id">
+        {{ req.date }} - {{ req.status }}
+        <button v-if="req.status === 'aceptada'" @click="cancelRequest(req._id)">Cancelar</button>
+      </li>
+    </ul>
   </div>
   <div v-else>
     <p>Cargando perfil...</p>
@@ -186,6 +194,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useDogStore } from '@/stores/dog'
+import { requestsGet, requestsPatch } from '../../api/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -213,6 +222,10 @@ const customBreedEdit = ref('')
 const selectedBreedAdd = ref('')
 const selectedBreedEdit = ref('')
 
+const ownerRequests = ref([])
+const ownerRequestsLoading = ref(false)
+const ownerRequestsError = ref('')
+
 watch(
   () => showPersonalInfo.value,
   (val) => {
@@ -223,6 +236,23 @@ watch(
     }
   },
 )
+
+const fetchOwnerRequests = async () => {
+  ownerRequestsLoading.value = true
+  try {
+    const res = await requestsGet('/owner')
+    ownerRequests.value = res.data
+  } catch (e) {
+    ownerRequestsError.value = e?.response?.data?.msg || 'Error al cargar solicitudes'
+  } finally {
+    ownerRequestsLoading.value = false
+  }
+}
+
+const cancelRequest = async (id) => {
+  await requestsPatch(`/${id}/cancel`)
+  fetchOwnerRequests()
+}
 
 const savePersonalData = async () => {
   personalError.value = ''
@@ -306,11 +336,6 @@ const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
 }
 
-const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
-}
-
 const handleBreedChange = (formType) => {
   if (formType === 'add') {
     showCustomBreedAdd.value = selectedBreedAdd.value === 'Otra'
@@ -342,6 +367,7 @@ const validateAndUpdateDog = async () => {
 }
 
 onMounted(async () => {
+  fetchOwnerRequests()
   authStore.initializeAuth()
   if (!authStore.isLoggedIn) {
     router.push({ name: 'login' })

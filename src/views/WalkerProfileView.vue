@@ -161,7 +161,17 @@
       <button @click="cancelDelete">Cancelar</button>
     </div>
 
-    <h2>Paseos Programados</h2>
+    <h2>Solicitudes recibidas</h2>
+    <div v-if="walkerRequestsLoading">Cargando...</div>
+    <div v-else-if="walkerRequestsError">{{ walkerRequestsError }}</div>
+    <ul v-else>
+      <li v-for="req in walkerRequests" :key="req._id">
+        {{ req.date }} - {{ req.status }}
+        <button v-if="req.status === 'pendiente'" @click="acceptRequest(req._id)">Aceptar</button>
+        <button v-if="req.status === 'pendiente'" @click="rejectRequest(req._id)">Rechazar</button>
+        <button v-if="req.status === 'aceptada'" @click="cancelRequest(req._id)">Cancelar</button>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -170,6 +180,7 @@ import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useWalkerAdStore } from '@/stores/walkerAd'
+import { requestsGet, requestsPatch } from '../../api/api'
 import provinces from '@/data/provinces.json'
 
 const comunidades = Object.keys(provinces)
@@ -198,6 +209,35 @@ const showEditAdForm = ref(false)
 const showDeleteConfirm = ref(false)
 const newAd = ref({ biography: '', maxDogs: '', locality: '' })
 const editAd = ref({ biography: '', maxDogs: '', locality: '' })
+
+const walkerRequests = ref([])
+const walkerRequestsLoading = ref(false)
+const walkerRequestsError = ref('')
+
+const fetchWalkerRequests = async () => {
+  walkerRequestsLoading.value = true
+  try {
+    const res = await requestsGet('/walker')
+    walkerRequests.value = res.data
+  } catch (e) {
+    walkerRequestsError.value = e?.response?.data?.msg || 'Error al cargar solicitudes'
+  } finally {
+    walkerRequestsLoading.value = false
+  }
+}
+
+const acceptRequest = async (id) => {
+  await requestsPatch(`/${id}/accept`)
+  fetchWalkerRequests()
+}
+const rejectRequest = async (id) => {
+  await requestsPatch(`/${id}/reject`)
+  fetchWalkerRequests()
+}
+const cancelRequest = async (id) => {
+  await requestsPatch(`/${id}/cancel`)
+  fetchWalkerRequests()
+}
 
 watch(
   () => showPersonalInfo.value,
@@ -343,13 +383,9 @@ const cancelDelete = () => {
   showDeleteConfirm.value = false
 }
 
-const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
-}
-
 onMounted(async () => {
   authStore.initializeAuth()
+  fetchWalkerRequests()
   if (!authStore.isLoggedIn) {
     router.push({ name: 'login' })
   } else if (authStore.userRole === 'walker') {

@@ -32,11 +32,45 @@
         <p>{{ ad.maxDogs }}</p>
         <p>{{ ad.locality }}</p>
         <p>{{ ad.walker_email }}</p>
-        <button>Contactar</button>
+        <button @click="openRequestPanel(ad)">Solicitar servicio</button>
       </div>
     </div>
     <p v-else-if="loading">Cargando anuncios...</p>
     <p v-else>No hay anuncios activos disponibles.</p>
+
+    <div v-if="showRequestPanel" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Solicitar Paseo</h2>
+        <form @submit.prevent="submitRequest">
+          <div>
+            <label>Día:</label>
+            <input type="date" v-model="requestDate" required />
+          </div>
+          <div>
+            <label>Localidad:</label>
+            <input type="text" :value="selectedAd.locality" disabled />
+          </div>
+          <div>
+            <label>Perros:</label>
+            <div v-if="authStore.dogs.length">
+              <div v-for="dog in authStore.dogs" :key="dog._id">
+                <input type="checkbox" :id="dog._id" :value="dog._id" v-model="selectedDogs" />
+                <label :for="dog._id">{{ dog.name }} ({{ dog.breed }})</label>
+              </div>
+            </div>
+            <div v-else>
+              <p>No tienes perros registrados. <br />No puedes solicitar el servicio.</p>
+            </div>
+          </div>
+          <button type="submit" :disabled="!authStore.dogs.length || !selectedDogs.length">
+            Enviar solicitud
+          </button>
+          <button type="button" @click="closeRequestPanel">Cancelar</button>
+          <p v-if="requestError" class="error-message">{{ requestError }}</p>
+          <p v-if="requestSuccess" class="success-message">{{ requestSuccess }}</p>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -46,6 +80,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { adsGet } from '../../api/api'
 import provinces from '@/data/provinces.json'
+import { requestsPost } from '../../api/api'
 
 const capitalize = (str) => (str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : '')
 
@@ -57,6 +92,13 @@ const authStore = useAuthStore()
 const ads = ref([])
 const selectedLocality = ref('')
 const loading = ref(false)
+
+const showRequestPanel = ref(false)
+const selectedAd = ref(null)
+const requestDate = ref('')
+const selectedDogs = ref([])
+const requestError = ref('')
+const requestSuccess = ref('')
 
 const fetchAds = async () => {
   loading.value = true
@@ -70,6 +112,42 @@ const fetchAds = async () => {
     console.error('Error al cargar anuncios:', error.response?.data?.msg || error.message)
   } finally {
     loading.value = false
+  }
+}
+
+const openRequestPanel = (ad) => {
+  selectedAd.value = ad
+  showRequestPanel.value = true
+  requestDate.value = ''
+  selectedDogs.value = []
+  requestError.value = ''
+  requestSuccess.value = ''
+}
+
+const closeRequestPanel = () => {
+  showRequestPanel.value = false
+}
+
+const submitRequest = async () => {
+  requestError.value = ''
+  requestSuccess.value = ''
+  if (!requestDate.value || !selectedDogs.value.length) {
+    requestError.value = 'Debes seleccionar un día y al menos un perro.'
+    return
+  }
+  try {
+    await requestsPost('', {
+      walker_id: selectedAd.value.walker_id || selectedAd.value.walkerId || selectedAd.value.walker,
+      ad_id: selectedAd.value._id,
+      date: requestDate.value,
+      dogs: selectedDogs.value,
+    })
+    requestSuccess.value = 'Solicitud enviada correctamente.'
+    setTimeout(() => {
+      showRequestPanel.value = false
+    }, 1500)
+  } catch (e) {
+    requestError.value = e?.response?.data?.msg || 'Error al enviar la solicitud.'
   }
 }
 

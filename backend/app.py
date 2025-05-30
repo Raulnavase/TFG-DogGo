@@ -6,6 +6,7 @@ from extensions import mongo, bcrypt, jwt
 from resources.auth import auth_bp
 from resources.dogs import dogs_bp
 from resources.advertisements import advertisements_bp
+from resources.requests import requests_bp
 from flask_cors import CORS
 
 def create_app():
@@ -26,6 +27,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(dogs_bp)
     app.register_blueprint(advertisements_bp)
+    app.register_blueprint(requests_bp)
 
     @app.route('/')
     def home():
