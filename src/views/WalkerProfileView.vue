@@ -77,7 +77,7 @@
     <h2>Tu Anuncio</h2>
     <div v-if="walkerAdStore.walkerAd">
       <div class="ad-card">
-        <p><strong>Nombre:</strong> {{ authStore.user?.name }}</p>
+        <p>{{ authStore.user?.name }} {{ authStore.user?.last_name }}</p>
         <p><strong>Biografía:</strong> {{ walkerAdStore.walkerAd.biography }}</p>
         <p><strong>Máximo de perros por paseo:</strong> {{ walkerAdStore.walkerAd.maxDogs }}</p>
         <p><strong>Localidad:</strong> {{ walkerAdStore.walkerAd.locality }}</p>
@@ -162,21 +162,6 @@
     </div>
 
     <h2>Paseos Programados</h2>
-    <div v-if="loadingBookings">
-      <p>Cargando paseos...</p>
-    </div>
-    <div v-else-if="bookings.length > 0">
-      <ul>
-        <li v-for="booking in bookings" :key="booking._id">
-          Paseo con {{ booking.owner_name }} el {{ formatDate(booking.date) }} para
-          {{ booking.dog_name }}
-        </li>
-      </ul>
-    </div>
-    <div v-else>
-      <p>No tienes paseos programados.</p>
-      <p v-if="bookingsError" class="error-message">{{ bookingsError }}</p>
-    </div>
   </div>
 </template>
 
@@ -185,7 +170,6 @@ import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useWalkerAdStore } from '@/stores/walkerAd'
-import { bookingsGet } from '../../api/api'
 import provinces from '@/data/provinces.json'
 
 const comunidades = Object.keys(provinces)
@@ -214,9 +198,6 @@ const showEditAdForm = ref(false)
 const showDeleteConfirm = ref(false)
 const newAd = ref({ biography: '', maxDogs: '', locality: '' })
 const editAd = ref({ biography: '', maxDogs: '', locality: '' })
-const bookings = ref([])
-const loadingBookings = ref(false)
-const bookingsError = ref(null)
 
 watch(
   () => showPersonalInfo.value,
@@ -367,26 +348,12 @@ const formatDate = (dateString) => {
   return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-const fetchBookings = async () => {
-  loadingBookings.value = true
-  try {
-    const response = await bookingsGet('/walker')
-    bookings.value = response.data
-    bookingsError.value = null
-  } catch (error) {
-    bookingsError.value = error.response?.data?.msg || 'Error al cargar paseos'
-  } finally {
-    loadingBookings.value = false
-  }
-}
-
 onMounted(async () => {
   authStore.initializeAuth()
   if (!authStore.isLoggedIn) {
     router.push({ name: 'login' })
   } else if (authStore.userRole === 'walker') {
     await walkerAdStore.fetchWalkerAd()
-    await fetchBookings()
   } else {
     router.push({ name: 'index' })
   }

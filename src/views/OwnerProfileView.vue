@@ -175,18 +175,6 @@
     </div>
 
     <h2>Paseos Programados</h2>
-    <div v-if="bookings.length > 0">
-      <ul>
-        <li v-for="booking in bookings" :key="booking._id">
-          Paseo con {{ booking.walker_name }} el {{ formatDate(booking.date) }} para
-          {{ booking.dog_name }}
-        </li>
-      </ul>
-    </div>
-    <div v-else>
-      <p>No tienes paseos programados.</p>
-      <button @click="goToActiveWalks">Buscar paseos</button>
-    </div>
   </div>
   <div v-else>
     <p>Cargando perfil...</p>
@@ -198,7 +186,6 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useDogStore } from '@/stores/dog'
-import { bookingsGet } from '../../api/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -225,7 +212,6 @@ const customBreedAdd = ref('')
 const customBreedEdit = ref('')
 const selectedBreedAdd = ref('')
 const selectedBreedEdit = ref('')
-const bookings = ref([])
 
 watch(
   () => showPersonalInfo.value,
@@ -315,15 +301,6 @@ const fetchBreeds = async () => {
   breeds.value = dogStore.breeds
 }
 
-const fetchBookings = async () => {
-  try {
-    const response = await bookingsGet('/owner')
-    bookings.value = response.data
-  } catch (error) {
-    console.error('Error al cargar paseos:', error.response?.data?.msg || error.message)
-  }
-}
-
 const capitalizeFirstLetter = (string) => {
   if (!string) return string
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
@@ -371,7 +348,6 @@ onMounted(async () => {
   } else {
     await authStore.fetchDogs()
     await fetchBreeds()
-    await fetchBookings()
   }
 })
 

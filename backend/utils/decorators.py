@@ -1,12 +1,14 @@
 from functools import wraps
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
-from flask import jsonify
+from flask import jsonify, request
 from extensions import mongo
 
 def role_required(role_name):
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
+            if request.method == 'OPTIONS':
+                return fn(*args, **kwargs)
             try:
                 verify_jwt_in_request()
                 user_email = get_jwt_identity()

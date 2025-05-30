@@ -77,10 +77,6 @@ def delete_user():
 
     mongo.db.advertisements.delete_many({"walker_id": user["_id"]})
 
-    mongo.db.bookings.delete_many({"owner_id": user["_id"]})
-    
-    mongo.db.bookings.delete_many({"walker_id": user["_id"]})
-
     mongo.db.users.delete_one({"_id": user["_id"]})
 
     return jsonify({"msg": "Usuario y datos eliminados correctamente"}), 200

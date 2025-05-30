@@ -46,6 +46,8 @@ def get_all_ads():
         ad['walker_id'] = str(ad['walker_id'])
         walker = mongo.db.users.find_one({"_id": ObjectId(ad['walker_id'])})
         ad['walker_name'] = walker['name'] if walker else 'Desconocido'
+        ad['walker_lastName'] = walker['last_name'] if walker else 'Desconocido'
+        ad['walker_email'] = walker['email']
         ads_list.append(ad)
     return jsonify(ads_list), 200
 

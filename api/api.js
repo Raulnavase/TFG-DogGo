@@ -1,28 +1,24 @@
 import axios from 'axios'
 
+const BASE_URL = 'http://localhost:5000'
+// const BASE_URL = 'https://85ml2msw-5000.uks1.devtunnels.ms'
+
 const authApi = axios.create({
-  baseURL: 'http://127.0.0.1:5000/auth',
+  baseURL: `${BASE_URL}/auth`,
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
 const dogsApi = axios.create({
-  baseURL: 'http://127.0.0.1:5000/dogs',
+  baseURL: `${BASE_URL}/dogs`,
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
 const adsApi = axios.create({
-  baseURL: 'http://127.0.0.1:5000/advertisements',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
-
-const bookingsApi = axios.create({
-  baseURL: 'http://127.0.0.1:5000/bookings',
+  baseURL: `${BASE_URL}/advertisements`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -41,7 +37,6 @@ const addTokenInterceptor = (instance) => {
 addTokenInterceptor(authApi)
 addTokenInterceptor(dogsApi)
 addTokenInterceptor(adsApi)
-addTokenInterceptor(bookingsApi)
 
 export const authPost = (url, data) => authApi.post(url, data)
 export const authDelete = (url) => authApi.delete(url)
@@ -58,7 +53,5 @@ export const adsPut = (url, data) => adsApi.put(url, data)
 export const adsDelete = (url) => adsApi.delete(url)
 export const adsPatch = (url, data, config = {}) =>
   adsApi.request({ ...config, url, data, method: 'PATCH' })
-
-export const bookingsGet = (url) => bookingsApi.get(url)
 
 export default authApi
