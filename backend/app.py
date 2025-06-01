@@ -32,6 +32,10 @@ def create_app():
     @app.route('/')
     def home():
         return "API DogGo funcionando!"
+    
+    @app.errorhandler(404)
+    def not_found(error):
+        return {"msg": "Recurso no encontrado"}, 404
 
     return app
 

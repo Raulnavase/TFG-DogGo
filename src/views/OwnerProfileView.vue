@@ -79,8 +79,7 @@
     <div v-if="authStore.dogs.length > 0">
       <ul>
         <li v-for="dog in authStore.dogs" :key="dog._id">
-          {{ capitalizeFirstLetter(dog.name) }} ({{ capitalizeFirstLetter(dog.breed) }},
-          {{ dog.age }} años)
+          {{ capitalize(dog.name) }} ({{ capitalize(dog.breed) }}, {{ dog.age }} años)
           <button @click="authStore.toggleEditDogForm(dog)">Editar</button>
           <button @click="authStore.showDeleteConfirmation(dog)">Eliminar</button>
         </li>
@@ -380,10 +379,7 @@ const fetchBreeds = async () => {
   breeds.value = dogStore.breeds
 }
 
-const capitalizeFirstLetter = (string) => {
-  if (!string) return string
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
-}
+const capitalize = (str) => (str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : '')
 
 const handleBreedChange = (formType) => {
   if (formType === 'add') {

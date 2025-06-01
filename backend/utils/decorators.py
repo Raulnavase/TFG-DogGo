@@ -6,9 +6,7 @@ from extensions import mongo
 def role_required(role_name):
     def decorator(fn):
         @wraps(fn)
-        def wrapper(*args, **kwargs):
-            if request.method == 'OPTIONS':
-                return fn(*args, **kwargs)
+        def wrapper(*args, **kwargs):      
             try:
                 verify_jwt_in_request()
                 user_email = get_jwt_identity()

@@ -51,6 +51,11 @@ const router = createRouter({
       component: () => import('../views/ResetPasswordView.vue'),
       meta: { requiresGuest: true },
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('../views/NotFoundView.vue'),
+    },
   ],
 })
 
