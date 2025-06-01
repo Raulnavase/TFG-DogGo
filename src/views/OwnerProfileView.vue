@@ -15,8 +15,8 @@
         <h2>Información personal</h2>
         <template v-if="!editPersonal">
           <ul>
-            <li><strong>Nombre:</strong> {{ authStore.user?.name }}</li>
-            <li><strong>Apellido:</strong> {{ authStore.user?.last_name }}</li>
+            <li><strong>Nombre:</strong> {{ capitalize(authStore.user?.name) }}</li>
+            <li><strong>Apellido:</strong> {{ capitalize(authStore.user?.last_name) }}</li>
             <li><strong>Email:</strong> {{ authStore.user?.email }}</li>
           </ul>
           <button @click="editPersonal = true">Editar datos</button>
@@ -181,7 +181,7 @@
       <li v-for="req in ownerRequests" :key="req._id">
         <div>
           <strong>Paseador:</strong>
-          {{ req.walker_info?.name }} {{ req.walker_info?.last_name }} ({{
+          {{ capitalize(req.walker_info?.name) }} {{ capitalize(req.walker_info?.last_name) }} ({{
             req.walker_info?.email
           }})
         </div>
@@ -189,7 +189,7 @@
           <strong>Perros:</strong>
           <ul>
             <li v-for="dog in req.dogs_info" :key="dog._id">
-              {{ dog.name }} ({{ dog.breed }}, {{ dog.age }} años)
+              {{ capitalize(dog.name) }} ({{ capitalize(dog.breed) }}, {{ dog.age }} años)
             </li>
           </ul>
         </div>

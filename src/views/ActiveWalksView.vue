@@ -55,7 +55,9 @@
             <div v-if="authStore.dogs.length">
               <div v-for="dog in authStore.dogs" :key="dog._id">
                 <input type="checkbox" :id="dog._id" :value="dog._id" v-model="selectedDogs" />
-                <label :for="dog._id">{{ dog.name }} ({{ dog.breed }})</label>
+                <label :for="dog._id"
+                  >{{ capitalize(dog.name) }} ({{ capitalize(dog.breed) }})</label
+                >
               </div>
             </div>
             <div v-else>

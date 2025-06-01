@@ -14,8 +14,8 @@
         <h2>Información personal</h2>
         <template v-if="!editPersonal">
           <ul>
-            <li><strong>Nombre:</strong> {{ authStore.user?.name }}</li>
-            <li><strong>Apellido:</strong> {{ authStore.user?.last_name }}</li>
+            <li><strong>Nombre:</strong> {{ capitalize(authStore.user?.name) }}</li>
+            <li><strong>Apellido:</strong> {{ capitalize(authStore.user?.last_name) }}</li>
             <li><strong>Email:</strong> {{ authStore.user?.email }}</li>
           </ul>
           <button @click="editPersonal = true">Editar datos</button>
@@ -77,8 +77,8 @@
     <h2>Tu Anuncio</h2>
     <div v-if="walkerAdStore.walkerAd">
       <div class="ad-card">
-        <p>{{ authStore.user?.name }} {{ authStore.user?.last_name }}</p>
-        <p><strong>Biografía:</strong> {{ walkerAdStore.walkerAd.biography }}</p>
+        <p>{{ capitalize(authStore.user?.name) }} {{ capitalize(authStore.user?.last_name) }}</p>
+        <p><strong>Biografía:</strong> {{ capitalize(walkerAdStore.walkerAd.biography) }}</p>
         <p><strong>Máximo de perros por paseo:</strong> {{ walkerAdStore.walkerAd.maxDogs }}</p>
         <p><strong>Localidad:</strong> {{ walkerAdStore.walkerAd.locality }}</p>
         <p><strong>Estado:</strong> {{ walkerAdStore.walkerAd.paused ? 'Pausado' : 'Activo' }}</p>
@@ -167,15 +167,14 @@
     <ul v-else>
       <li v-for="req in walkerRequests.filter((r) => r.status !== 'rechazada')" :key="req._id">
         <div>
-          <strong>Dueño:</strong> {{ req.owner_info?.name }} {{ req.owner_info?.last_name }} ({{
-            req.owner_info?.email
-          }})
+          <strong>Dueño:</strong> {{ capitalize(req.owner_info?.name) }}
+          {{ capitalize(req.owner_info?.last_name) }} ({{ req.owner_info?.email }})
         </div>
         <div>
           <strong>Perros:</strong>
           <ul>
             <li v-for="dog in req.dogs_info" :key="dog._id">
-              {{ dog.name }} ({{ dog.breed }}, {{ dog.age }} años)
+              {{ capitalize(dog.name) }} ({{ capitalize(dog.breed) }}, {{ dog.age }} años)
             </li>
           </ul>
         </div>
@@ -221,6 +220,8 @@ const statusText = (status) => {
       return status
   }
 }
+
+const capitalize = (str) => (str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : '')
 
 const comunidades = Object.keys(provinces)
 const provinciasPorComunidad = provinces

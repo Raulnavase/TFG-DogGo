@@ -2,6 +2,7 @@ from flask import request, jsonify, Blueprint
 from extensions import mongo, bcrypt
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, get_jwt_identity
 from bson import ObjectId
+from utils.email_utils import send_welcome_email
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -31,6 +32,11 @@ def register():
         "password": hashed_password,
         "role": role
     }).inserted_id
+
+    try:
+        send_welcome_email(email, name)
+    except Exception as e:
+        print("Error enviando correo de bienvenida: {}".format(e))
 
     return jsonify({"msg": "Usuario registrado exitosamente", "user_id": str(user_id)}), 201
 

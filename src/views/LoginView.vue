@@ -11,9 +11,10 @@
         class="password input"
         type="password"
       />
-      <router-link to="/register" class="register-link">¿No tienes cuenta? Registrarse</router-link>
+      <p>¿Has olvidado la contraseña?</p>
       <button class="btn" type="submit">Entrar</button>
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <router-link to="/register" class="register-link">¿No tienes cuenta? Registrarse</router-link>
     </form>
   </div>
 </template>
