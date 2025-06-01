@@ -1,14 +1,19 @@
 <template>
-  <div>
-    <h1>Bienvenido a DogGo!</h1>
-    <div v-if="!authStore.isLoggedIn">
-      <router-link to="/login">Iniciar sesión</router-link>
-      <router-link to="/register">Registrarse</router-link>
+  <div class="wrapper">
+    <div class="circle"></div>
+    <div class="text-box">
+      <h1>DogGo!</h1>
+      <h3>Para ti, por ellos.</h3>
+      <div v-if="!authStore.isLoggedIn">
+        <router-link to="/login">Iniciar sesión</router-link>
+        <router-link to="/register">Registrarse</router-link>
+      </div>
+      <div v-else>
+        <router-link v-if="profileRoute" :to="profileRoute">Perfil</router-link>
+        <button @click="handleLogout">Cerrar sesión</button>
+      </div>
     </div>
-    <div v-else>
-      <router-link v-if="profileRoute" :to="profileRoute">Perfil</router-link>
-      <button @click="handleLogout">Cerrar sesión</button>
-    </div>
+    <img src="/perro-1.png" alt="perro" />
   </div>
 </template>
 
@@ -34,11 +39,51 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-div {
+.wrapper {
+  background-color: rgb(1 213 236);
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  justify-content: space-around;
+  flex-direction: row;
   text-align: center;
+  align-items: center;
+}
+.circle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50vw;
+  height: 100vh;
+  background-color: rgb(255 204 1);
+  border-top-left-radius: 50vw;
+  border-bottom-left-radius: 50vw;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  z-index: 0;
+}
+.wrapper img {
+  top: 0;
+  z-index: 1;
+  height: 110vh;
+  width: 50%;
+  margin-bottom: 2rem;
+}
+
+.text-box {
+  position: relative;
+  z-index: 1;
+  width: 40%;
+  height: 60%;
   padding: 20px;
-  max-width: 600px;
-  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+}
+
+.wrapper > *:not(.circle) {
+  position: relative;
 }
 
 h1 {
