@@ -1,7 +1,6 @@
 from flask import request, jsonify, Blueprint
 from extensions import mongo, bcrypt
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, get_jwt_identity
-from bson import ObjectId
 from utils.email_utils import send_welcome_email
 import secrets
 from datetime import datetime, timedelta
