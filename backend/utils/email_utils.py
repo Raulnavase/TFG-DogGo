@@ -19,3 +19,18 @@ def send_welcome_email(to_email, name):
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
         server.login(remitente, password)
         server.sendmail(remitente, to_email, msg.as_string())
+
+def send_reset_email(to_email, token):
+    remitente = getenv("REMITENTE_EMAIL")
+    password = getenv("PASSWORD_EMAIL")
+    asunto = "Recupera tu contraseña en DogGo"
+    enlace = f"http://localhost:5173/reset-password/{token}"
+    cuerpo = f"Hola,\n\nHaz clic en el siguiente enlace para restablecer tu contraseña:\n{enlace}\n\nSi no solicitaste este cambio, ignora este correo."
+    msg = MIMEText(cuerpo)
+    msg['Subject'] = asunto
+    msg['From'] = remitente
+    msg['To'] = to_email
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+        server.login(remitente, password)
+        server.sendmail(remitente, to_email, msg.as_string())

@@ -3,6 +3,8 @@ from extensions import mongo, bcrypt
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, get_jwt_identity
 from bson import ObjectId
 from utils.email_utils import send_welcome_email
+import secrets
+from datetime import datetime, timedelta
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -127,3 +129,53 @@ def change_password():
     mongo.db.users.update_one({"email": email}, {"$set": {"password": hashed_password}})
     return jsonify({"msg": "Contraseña cambiada correctamente"}), 200
 
+
+@auth_bp.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()
+    email = data.get('email')
+    user = mongo.db.users.find_one({"email": email})
+    if not user:
+        return jsonify({"msg": "Si el email existe, se enviará un enlace de recuperación"}), 200
+
+    token = secrets.token_urlsafe(32)
+    expires = datetime.utcnow() + timedelta(hours=1)
+    mongo.db.users.update_one(
+        {"email": email},
+        {"$set": {"reset_token": token, "reset_token_expires": expires}}
+    )
+
+    from utils.email_utils import send_reset_email
+    send_reset_email(email, token)
+
+    return jsonify({"msg": "Si el email existe, se enviará un enlace de recuperación"}), 200
+
+
+@auth_bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    token = data.get('token')
+    new_password = data.get('password')
+
+    if not token or not new_password:
+        return jsonify({"msg": "Faltan datos"}), 400
+
+    user = mongo.db.users.find_one({"reset_token": token})
+
+    if not user:
+        return jsonify({"msg": "Token inválido"}), 400
+
+    expires = user.get("reset_token_expires")
+    if not expires or datetime.utcnow() > expires:
+        return jsonify({"msg": "El enlace ha expirado"}), 400
+
+    hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    mongo.db.users.update_one(
+        {"_id": user["_id"]},
+        {
+            "$set": {"password": hashed_password},
+            "$unset": {"reset_token": "", "reset_token_expires": ""}
+        }
+    )
+
+    return jsonify({"msg": "Contraseña restablecida correctamente"}), 200

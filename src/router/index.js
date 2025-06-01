@@ -39,6 +39,18 @@ const router = createRouter({
       component: () => import('../views/ActiveWalksView.vue'),
       meta: { requiresAuth: true, role: 'owner' },
     },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('../views/ForgotPasswordView.vue'),
+      meta: { requiresGuest: true },
+    },
+    {
+      path: '/reset-password/:token',
+      name: 'reset-password',
+      component: () => import('../views/ResetPasswordView.vue'),
+      meta: { requiresGuest: true },
+    },
   ],
 })
 
