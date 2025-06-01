@@ -13,7 +13,6 @@
         <button @click="handleLogout">Cerrar sesión</button>
       </div>
     </div>
-    <img src="/perro-1.png" alt="perro" />
   </div>
 </template>
 
