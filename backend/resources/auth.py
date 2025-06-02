@@ -1,6 +1,6 @@
 from flask import request, jsonify, Blueprint
-from extensions import mongo, bcrypt
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, get_jwt_identity
+from extensions import mongo, bcrypt
 from bson import ObjectId
 from utils.email_utils import send_welcome_email
 import secrets
@@ -17,7 +17,7 @@ def register():
     password = data.get('password')
     role = data.get('role')
 
-    if not name or not last_name or not email or not password or not role:
+    if not name or not email or not password or not last_name or not role:
         return jsonify({"msg": "Faltan campos requeridos"}), 400
 
     if role not in ['owner', 'walker']:
@@ -54,10 +54,14 @@ def login():
     user = mongo.db.users.find_one({"email": email})
 
     if user and bcrypt.check_password_hash(user['password'], password):
-        access_token = create_access_token(identity=email)
+        access_token = create_access_token(
+            identity=email,
+            additional_claims={"role": user.get('role', 'owner')},
+            expires_delta=timedelta(hours=1)
+        )
         response_data = {
             "access_token": access_token,
-            "role": user.get("role"),
+            "role": user.get("role", "owner"),
             "name": user.get("name"),
             "last_name": user.get("last_name"),
             "email": user.get("email")
@@ -82,13 +86,10 @@ def delete_user():
         return jsonify({"msg": "Usuario no encontrado"}), 404
 
     mongo.db.dogs.delete_many({"owner_id": user["_id"]})
-
     mongo.db.advertisements.delete_many({"walker_id": user["_id"]})
-
     mongo.db.users.delete_one({"_id": user["_id"]})
 
     return jsonify({"msg": "Usuario y datos eliminados correctamente"}), 200
-
 
 @auth_bp.route('/update', methods=['PUT', 'POST'])
 @jwt_required()
@@ -114,7 +115,6 @@ def update_user():
 
     return jsonify({"msg": "Usuario actualizado correctamente"}), 200
 
-
 @auth_bp.route('/change-password', methods=['POST'])
 @jwt_required()
 def change_password():
@@ -128,7 +128,6 @@ def change_password():
     hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
     mongo.db.users.update_one({"email": email}, {"$set": {"password": hashed_password}})
     return jsonify({"msg": "Contraseña cambiada correctamente"}), 200
-
 
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
@@ -149,7 +148,6 @@ def forgot_password():
     send_reset_email(email, token)
 
     return jsonify({"msg": "Si el email existe, se enviará un enlace de recuperación"}), 200
-
 
 @auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
