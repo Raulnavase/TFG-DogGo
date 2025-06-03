@@ -59,10 +59,44 @@ def get_user_details(user_id):
     reqs_cursor = mongo.db.requests.find({"$or": [{"owner_id": obj_user_id}, {"walker_id": obj_user_id}]})
     for req in reqs_cursor:
         req['_id'] = str(req['_id'])
-        req['owner_id'] = str(req['owner_id'])
-        req['walker_id'] = str(req['walker_id'])
-        req['ad_id'] = str(req['ad_id'])
-        req['dogs'] = [str(d) for d in req['dogs']]
+        req_owner_id = req['owner_id']
+        req_walker_id = req['walker_id']
+        req_ad_id = req['ad_id']
+        req_dogs_ids = req['dogs']
+
+        owner_info = mongo.db.users.find_one({"_id": req_owner_id}, {"name": 1, "last_name": 1, "email": 1})
+        req['owner_info'] = {
+            "id": str(owner_info['_id']),
+            "name": owner_info['name'],
+            "last_name": owner_info['last_name'],
+            "email": owner_info['email']
+        } if owner_info else {"id": None, "name": "N/A", "last_name": "", "email": "N/A"}
+
+        walker_info = mongo.db.users.find_one({"_id": req_walker_id}, {"name": 1, "last_name": 1, "email": 1})
+        req['walker_info'] = {
+            "id": str(walker_info['_id']),
+            "name": walker_info['name'],
+            "last_name": walker_info['last_name'],
+            "email": walker_info['email']
+        } if walker_info else {"id": None, "name": "N/A", "last_name": "", "email": "N/A"}
+
+        dogs_info = []
+        if req_dogs_ids:
+            dogs_cursor = mongo.db.dogs.find({"_id": {"$in": req_dogs_ids}})
+            for dog in dogs_cursor:
+                dogs_info.append({
+                    "id": str(dog['_id']),
+                    "name": dog['name'],
+                    "breed": dog['breed'],
+                    "age": dog['age']
+                })
+        req['dogs_info'] = dogs_info
+
+        req['owner_id'] = str(req_owner_id)
+        req['walker_id'] = str(req_walker_id)
+        req['ad_id'] = str(req_ad_id)
+        req['dogs'] = [str(d) for d in req_dogs_ids]
+
         requests_list.append(req)
 
     user_details = {
@@ -101,7 +135,6 @@ def create_user():
         "password": hashed_password,
         "role": role
     }).inserted_id
-
 
     return jsonify({"msg": "Usuario creado exitosamente", "user_id": str(user_id)}), 201
 
@@ -167,7 +200,6 @@ def delete_user_by_admin(user_id):
     mongo.db.users.delete_one({"_id": obj_user_id})
 
     return jsonify({"msg": "Usuario y datos asociados eliminados correctamente"}), 200
-
 
 
 @users_bp.route('/advertisements/<ad_id>', methods=['DELETE'])

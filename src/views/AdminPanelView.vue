@@ -1,13 +1,17 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useAdminStore } from '@/stores/admin'
+import { useAuthStore } from '@/stores/auth'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseInput from '@/components/BaseInput.vue'
 import BaseSelect from '@/components/BaseSelect.vue'
 import Loader from '@/components/Loader.vue'
 import Modal from '@/components/Modal.vue'
+import { useRouter } from 'vue-router'
 
 const adminStore = useAdminStore()
+const authStore = useAuthStore()
+const router = useRouter()
 
 const showCreateUserModal = ref(false)
 const newUserData = ref({
@@ -31,6 +35,25 @@ const editUserData = ref({
 const showUserDetailsModal = ref(false)
 const selectedUser = computed(() => adminStore.selectedUser)
 
+const currentPage = ref(1)
+const itemsPerPage = 10
+
+const paginatedUsers = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return adminStore.users.slice(start, end)
+})
+
+const totalPages = computed(() => {
+  return Math.ceil(adminStore.users.length / itemsPerPage)
+})
+
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+  }
+}
+
 const userRoles = [
   { value: 'owner', label: 'Propietario' },
   { value: 'walker', label: 'Paseador' },
@@ -51,12 +74,17 @@ const handleCreateUser = async () => {
     await adminStore.createUser(newUserData.value)
     showCreateUserModal.value = false
     alert(adminStore.success)
+    currentPage.value = 1
   } catch (error) {
     alert(adminStore.error)
   }
 }
 
 const openEditUserModal = (user) => {
+  if (user._id === authStore.user?.id) {
+    alert('No puedes editar tu propio perfil de administrador desde este panel.')
+    return
+  }
   editingUser.value = user
   editUserData.value = { ...user, password: '' }
   showEditUserModal.value = true
@@ -77,6 +105,11 @@ const handleUpdateUser = async () => {
 }
 
 const handleDeleteUser = async (userId) => {
+  if (userId === authStore.user?.id) {
+    alert('No puedes eliminar tu propio perfil de administrador desde este panel.')
+    return
+  }
+
   if (
     confirm(
       '¿Estás seguro de que quieres eliminar a este usuario y todos sus datos asociados? Esta acción es irreversible.',
@@ -85,6 +118,9 @@ const handleDeleteUser = async (userId) => {
     try {
       await adminStore.deleteUser(userId)
       alert(adminStore.success)
+      if (paginatedUsers.value.length === 0 && currentPage.value > 1) {
+        currentPage.value--
+      }
     } catch (error) {
       alert(adminStore.error)
     }
@@ -92,8 +128,19 @@ const handleDeleteUser = async (userId) => {
 }
 
 const openUserDetailsModal = async (userId) => {
+  if (userId === authStore.user?.id) {
+    alert(
+      'No puedes ver tu propio perfil de administrador desde este panel. Utiliza tu perfil de usuario si es necesario.',
+    )
+    return
+  }
   await adminStore.fetchUserDetails(userId)
   showUserDetailsModal.value = true
+}
+
+const goBackToList = () => {
+  showUserDetailsModal.value = false
+  adminStore.selectedUser = null
 }
 
 const handleUpdateAd = async (adId, adData) => {
@@ -161,15 +208,16 @@ const handleDeleteRequest = async (requestId) => {
   <div class="container mx-auto p-4">
     <h1 class="text-3xl font-bold mb-6 text-center text-indigo-700">Panel de Administración</h1>
 
-    <div class="flex justify-end mb-4">
+    <div class="flex justify-between items-center mb-4">
+      <router-link to="/" class="text-indigo-600 hover:underline">Volver a Inicio</router-link>
       <BaseButton @click="openCreateUserModal" class="bg-green-500 hover:bg-green-600 text-white">
         Crear Nuevo Usuario
       </BaseButton>
     </div>
 
-    <Loader v-if="adminStore.loading" class="text-indigo-600" />
+    <Loader v-if="adminStore.loading && !showUserDetailsModal" class="text-indigo-600" />
     <div
-      v-else-if="adminStore.error"
+      v-else-if="adminStore.error && !showUserDetailsModal"
       class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
       role="alert"
     >
@@ -212,7 +260,7 @@ const handleDeleteRequest = async (requestId) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in adminStore.users" :key="user._id" class="hover:bg-gray-50">
+          <tr v-for="user in paginatedUsers" :key="user._id" class="hover:bg-gray-50">
             <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
               {{ user._id }}
             </td>
@@ -233,16 +281,19 @@ const handleDeleteRequest = async (requestId) => {
                 <BaseButton
                   @click="openUserDetailsModal(user._id)"
                   class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1"
+                  :disabled="user._id === authStore.user?.id"
                   >Ver</BaseButton
                 >
                 <BaseButton
                   @click="openEditUserModal(user)"
                   class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1"
+                  :disabled="user._id === authStore.user?.id"
                   >Editar</BaseButton
                 >
                 <BaseButton
                   @click="handleDeleteUser(user._id)"
                   class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1"
+                  :disabled="user._id === authStore.user?.id"
                   >Eliminar</BaseButton
                 >
               </div>
@@ -250,6 +301,34 @@ const handleDeleteRequest = async (requestId) => {
           </tr>
         </tbody>
       </table>
+
+      <div class="flex justify-center items-center space-x-2 py-4">
+        <BaseButton
+          @click="goToPage(1)"
+          :disabled="currentPage === 1"
+          class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-3 py-1"
+          >Primera</BaseButton
+        >
+        <BaseButton
+          @click="goToPage(currentPage - 1)"
+          :disabled="currentPage === 1"
+          class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-3 py-1"
+          >Anterior</BaseButton
+        >
+        <span class="text-gray-700 text-sm">Página {{ currentPage }} de {{ totalPages }}</span>
+        <BaseButton
+          @click="goToPage(currentPage + 1)"
+          :disabled="currentPage === totalPages"
+          class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-3 py-1"
+          >Siguiente</BaseButton
+        >
+        <BaseButton
+          @click="goToPage(totalPages)"
+          :disabled="currentPage === totalPages"
+          class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-3 py-1"
+          >Última</BaseButton
+        >
+      </div>
     </div>
 
     <Modal :show="showCreateUserModal" @close="showCreateUserModal = false">
@@ -326,7 +405,7 @@ const handleDeleteRequest = async (requestId) => {
       </template>
     </Modal>
 
-    <Modal :show="showUserDetailsModal" @close="showUserDetailsModal = false" :large="true">
+    <Modal :show="showUserDetailsModal" @close="goBackToList" :large="true">
       <template #title>Detalles del Usuario</template>
       <template #body>
         <Loader v-if="adminStore.loading && !selectedUser" class="text-indigo-600" />
@@ -338,6 +417,13 @@ const handleDeleteRequest = async (requestId) => {
           {{ adminStore.error }}
         </div>
         <div v-else-if="selectedUser">
+          <BaseButton
+            @click="goBackToList"
+            class="mb-4 bg-gray-500 hover:bg-gray-600 text-white text-sm px-4 py-2"
+          >
+            Volver a la lista de usuarios
+          </BaseButton>
+
           <h3 class="text-lg font-semibold mb-2 text-indigo-600">Información Personal</h3>
           <p><strong>ID:</strong> {{ selectedUser.user._id }}</p>
           <p>
@@ -408,19 +494,21 @@ const handleDeleteRequest = async (requestId) => {
               <p><strong>Fecha:</strong> {{ req.date }}</p>
               <p><strong>Estado:</strong> {{ req.status }}</p>
               <p>
-                <strong>Dueño:</strong> {{ req.owner_info.name }} {{ req.owner_info.last_name }} ({{
-                  req.owner_info.email
-                }})
+                <strong>Dueño:</strong> {{ req.owner_info?.name || 'N/A' }}
+                {{ req.owner_info?.last_name || '' }} ({{ req.owner_info?.email || 'N/A' }})
               </p>
               <p>
-                <strong>Paseador:</strong> {{ req.walker_info.name }}
-                {{ req.walker_info.last_name }} ({{ req.walker_info.email }})
+                <strong>Paseador:</strong> {{ req.walker_info?.name || 'N/A' }}
+                {{ req.walker_info?.last_name || '' }} ({{ req.walker_info?.email || 'N/A' }})
               </p>
               <p>
                 <strong>Perros Solicitados:</strong>
                 <span v-if="req.dogs_info && req.dogs_info.length">
                   <span v-for="d_info in req.dogs_info" :key="d_info._id">
-                    {{ d_info.name }} ({{ d_info.breed }})
+                    {{ d_info.name }} ({{ d_info.breed }})<span
+                      v-if="selectedUser.dogs.indexOf(d_info) < req.dogs_info.length - 1"
+                      >,
+                    </span>
                   </span>
                 </span>
                 <span v-else>N/A</span>

@@ -25,8 +25,10 @@ const authStore = useAuthStore()
 const router = useRouter()
 
 const profileRoute = computed(() => {
-  if (authStore.userRole) {
+  if (authStore.userRole !== 'admin') {
     return '/' + authStore.userRole + '-profile'
+  } else if (authStore.user) {
+    return '/admin-panel'
   }
   return null
 })
