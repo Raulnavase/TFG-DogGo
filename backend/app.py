@@ -7,6 +7,7 @@ from resources.auth import auth_bp
 from resources.dogs import dogs_bp
 from resources.advertisements import advertisements_bp
 from resources.requests import requests_bp
+from resources.users import users_bp
 from flask_cors import CORS
 
 def create_app():
@@ -28,11 +29,12 @@ def create_app():
     app.register_blueprint(dogs_bp)
     app.register_blueprint(advertisements_bp)
     app.register_blueprint(requests_bp)
+    app.register_blueprint(users_bp)
 
     @app.route('/')
     def home():
         return "API DogGo funcionando!"
-    
+
     @app.errorhandler(404)
     def not_found(error):
         return {"msg": "Recurso no encontrado"}, 404

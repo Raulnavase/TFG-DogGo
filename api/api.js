@@ -31,6 +31,13 @@ const requestsApi = axios.create({
   },
 })
 
+const adminApi = axios.create({
+  baseURL: `${BASE_URL}/admin/users`,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
 const addTokenInterceptor = (instance) => {
   instance.interceptors.request.use((config) => {
     const token = localStorage.getItem('accessToken')
@@ -45,9 +52,13 @@ addTokenInterceptor(authApi)
 addTokenInterceptor(dogsApi)
 addTokenInterceptor(adsApi)
 addTokenInterceptor(requestsApi)
+addTokenInterceptor(adminApi)
 
 export const authPost = (url, data) => authApi.post(url, data)
+export const authGet = (url) => authApi.get(url)
 export const authDelete = (url) => authApi.delete(url)
+export const authPut = (url, data) => authApi.put(url, data)
+
 export const dogsPost = (url, data, config = {}) =>
   dogsApi.request({ ...config, url, data, method: 'POST' })
 export const dogsGet = (url) => dogsApi.get(url)
@@ -67,7 +78,12 @@ export const requestsPost = (url, data, config = {}) =>
 export const requestsGet = (url) => requestsApi.get(url)
 export const requestsPatch = (url, data, config = {}) =>
   requestsApi.request({ ...config, url, data, method: 'PATCH' })
-
 export const requestsDelete = (url) => requestsApi.delete(url)
+
+export const adminGet = (url) => adminApi.get(url)
+export const adminPost = (url, data) => adminApi.post(url, data)
+export const adminPut = (url, data) => adminApi.put(url, data)
+export const adminDelete = (url) => adminApi.delete(url)
+export const adminPatch = (url, data) => adminApi.patch(url, data)
 
 export default authApi

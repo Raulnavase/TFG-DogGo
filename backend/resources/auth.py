@@ -1,5 +1,5 @@
 from flask import request, jsonify, Blueprint
-from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, get_jwt_identity, verify_jwt_in_request
 from extensions import mongo, bcrypt
 from bson import ObjectId
 from utils.email_utils import send_welcome_email
@@ -54,17 +54,19 @@ def login():
     user = mongo.db.users.find_one({"email": email})
 
     if user and bcrypt.check_password_hash(user['password'], password):
+        user_role = user.get('role', 'owner')
         access_token = create_access_token(
             identity=email,
-            additional_claims={"role": user.get('role', 'owner')},
+            additional_claims={"role": user_role},
             expires_delta=timedelta(hours=1)
         )
         response_data = {
             "access_token": access_token,
-            "role": user.get("role", "owner"),
+            "role": user_role,
             "name": user.get("name"),
             "last_name": user.get("last_name"),
-            "email": user.get("email")
+            "email": user.get("email"),
+            "id": str(user.get("_id"))
         }
         print("Respuesta del login:", response_data)
         return jsonify(response_data), 200
@@ -77,6 +79,23 @@ def logout():
     unset_jwt_cookies(response)
     return response, 200
 
+@auth_bp.route('/current_user', methods=['GET'])
+@jwt_required()
+def get_current_user():
+    current_user_email = get_jwt_identity()
+    user = mongo.db.users.find_one({"email": current_user_email})
+
+    if user:
+        return jsonify({
+            "id": str(user["_id"]),
+            "name": user.get("name"),
+            "last_name": user.get("last_name"),
+            "email": user.get("email"),
+            "role": user.get("role", "owner")
+        }), 200
+    return jsonify({"msg": "Usuario no encontrado"}), 404
+
+
 @auth_bp.route('/user', methods=['DELETE'])
 @jwt_required()
 def delete_user():
@@ -87,6 +106,7 @@ def delete_user():
 
     mongo.db.dogs.delete_many({"owner_id": user["_id"]})
     mongo.db.advertisements.delete_many({"walker_id": user["_id"]})
+    mongo.db.requests.delete_many({"$or": [{"owner_id": user["_id"]}, {"walker_id": user["_id"]}]})
     mongo.db.users.delete_one({"_id": user["_id"]})
 
     return jsonify({"msg": "Usuario y datos eliminados correctamente"}), 200

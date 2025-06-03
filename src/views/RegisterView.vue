@@ -3,28 +3,45 @@
     <form class="form" @submit.prevent="register">
       <router-link to="/" class="back-link">Volver a inicio</router-link>
       <p class="title">Registrarse</p>
-      <input v-model="name" required placeholder="Nombre" class="name input" type="text" />
-      <input
+      <BaseInput
+        v-model="name"
+        required
+        placeholder="Nombre"
+        class="input-custom"
+        type="text"
+        label="Nombre"
+      />
+      <BaseInput
         v-model="lastName"
         required
         placeholder="Apellido"
-        class="last_name input"
+        class="input-custom"
         type="text"
+        label="Apellido"
       />
-      <input v-model="email" required placeholder="Email" class="email input" type="email" />
-      <input
+      <BaseInput
+        v-model="email"
+        required
+        placeholder="Email"
+        class="input-custom"
+        type="email"
+        label="Email"
+      />
+      <BaseInput
         v-model="password"
         required
         placeholder="Contraseña"
-        class="password input"
+        class="input-custom"
         type="password"
+        label="Contraseña"
       />
-      <input
+      <BaseInput
         v-model="repPassword"
         required
         placeholder="Repite contraseña"
-        class="rep_password input"
+        class="input-custom"
         type="password"
+        label="Repite Contraseña"
       />
       <p class="consent">
         Al crear una cuenta, aceptas nuestros Términos de uso. Para saber cómo tratamos tus datos,
@@ -41,8 +58,9 @@
           <label for="owner">Dueño de perro/s</label>
         </div>
       </div>
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       <router-link to="/login" class="login-link">¿Ya tienes cuenta? Iniciar sesión</router-link>
-      <button class="btn" type="submit">Crear cuenta</button>
+      <BaseButton class="btn" type="submit">Crear cuenta</BaseButton>
     </form>
   </div>
 </template>
@@ -51,6 +69,8 @@
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
+import BaseInput from '@/components/BaseInput.vue'
+import BaseButton from '@/components/BaseButton.vue'
 
 const authStore = useAuthStore()
 
@@ -60,13 +80,16 @@ const email = ref('')
 const password = ref('')
 const repPassword = ref('')
 const role = ref('')
+const errorMessage = ref('')
 
 const register = async () => {
+  errorMessage.value = ''
+
   if (!role.value) {
-    console.error('Hay que introducir un rol.')
+    errorMessage.value = 'Debes seleccionar un rol (Paseador o Dueño).'
     return
   } else if (password.value !== repPassword.value) {
-    console.error('Las contraseñas no coinciden.')
+    errorMessage.value = 'Las contraseñas no coinciden.'
     return
   }
 
@@ -84,14 +107,43 @@ const register = async () => {
     if (authStore.registrationSuccess) {
       console.log('Registro completado con éxito!')
       router.push('/login')
+    } else {
+      errorMessage.value = authStore.registrationError || 'Error desconocido al registrarse.'
     }
   } catch (error) {
-    console.error('Error en el registro desde el componente:', authStore.registrationError)
+    errorMessage.value =
+      authStore.registrationError || 'Error al registrarse. Inténtalo de nuevo más tarde.'
+    console.error('Error en el registro desde el componente:', error)
   }
 }
 </script>
 
 <style scoped>
+.input-custom {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.5rem;
+  width: 20rem;
+  max-width: 100%;
+  background-color: transparent;
+  color: wheat;
+  border: none;
+  border-bottom: 1px solid wheat;
+  outline: none;
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease;
+}
+
+.input-custom:hover,
+.input-custom:focus {
+  background-color: #424242;
+  border-bottom: 1px solid antiquewhite;
+}
+
+.input-custom::placeholder {
+  color: whitesmoke;
+}
+
 ::selection {
   background-color: gray;
   color: white;
@@ -117,7 +169,7 @@ const register = async () => {
   flex-direction: column;
   border-radius: 0.5rem;
   padding: 20px;
-  position: relative; /* Para posicionar el back-link */
+  position: relative;
 }
 
 .back-link {
@@ -139,31 +191,6 @@ const register = async () => {
   margin: 1.5rem 0;
   font-size: 2rem;
   font-weight: bold;
-}
-
-.input {
-  margin: 0.5rem 0;
-  padding: 0.5rem 0.5rem;
-  width: 20rem;
-  max-width: 100%;
-  background-color: transparent;
-  color: wheat;
-  border: none;
-  border-bottom: 1px solid wheat;
-  outline: none;
-  transition:
-    background-color 0.4s ease,
-    border-color 0.4s ease;
-}
-
-.input:hover,
-.input:focus {
-  background-color: #424242;
-  border-bottom: 1px solid antiquewhite;
-}
-
-.input::placeholder {
-  color: whitesmoke;
 }
 
 .consent {
@@ -230,5 +257,12 @@ const register = async () => {
 .btn:hover {
   background-color: antiquewhite;
   box-shadow: none;
+}
+
+.error-message {
+  color: #ff6b6b;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  text-align: center;
 }
 </style>

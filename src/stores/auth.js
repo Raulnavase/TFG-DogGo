@@ -1,5 +1,13 @@
 import { defineStore } from 'pinia'
-import { authPost, dogsPost, dogsGet, dogsPut, dogsDelete, authDelete } from '../../api/api'
+import {
+  authPost,
+  dogsPost,
+  dogsGet,
+  dogsPut,
+  dogsDelete,
+  authDelete,
+  authGet,
+} from '../../api/api'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -25,14 +33,25 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   actions: {
-    initializeAuth() {
+    async initializeAuth() {
       const token = localStorage.getItem('accessToken')
-      const role = localStorage.getItem('userRole')
-      const user = localStorage.getItem('user')
-      if (token && role && user) {
-        this.isAuthenticated = true
-        this.role = role
-        this.user = JSON.parse(user)
+      if (token) {
+        try {
+          const response = await authGet('/current_user')
+          this.isAuthenticated = true
+          this.role = response.data.role
+          this.user = {
+            id: response.data.id,
+            name: response.data.name,
+            last_name: response.data.last_name,
+            email: response.data.email,
+          }
+          localStorage.setItem('userRole', this.role)
+          localStorage.setItem('user', JSON.stringify(this.user))
+        } catch (error) {
+          console.error('Error al inicializar autenticación:', error)
+          this.logoutUser()
+        }
       } else {
         this.logoutUser()
       }
@@ -61,6 +80,7 @@ export const useAuthStore = defineStore('auth', {
         this.isAuthenticated = true
         this.role = response.data.role
         this.user = {
+          id: response.data.id,
           name: response.data.name,
           last_name: response.data.last_name,
           email: response.data.email,
@@ -70,7 +90,7 @@ export const useAuthStore = defineStore('auth', {
         localStorage.setItem('user', JSON.stringify(this.user))
         return true
       } catch (error) {
-        this.loginError = error.response?.data?.msg || 'Credenciales inválidas'
+        this.loginError = error.response?.data?.msg || 'Credenciales inválidas o error de conexión.'
         this.isAuthenticated = false
         this.role = null
         this.user = null
@@ -141,7 +161,9 @@ export const useAuthStore = defineStore('auth', {
     async logoutUser() {
       try {
         await authPost('/logout', {})
-      } catch (error) {}
+      } catch (error) {
+        console.warn('Error during logout, but proceeding with client-side cleanup:', error)
+      }
       this.isAuthenticated = false
       this.role = null
       this.user = null
@@ -270,5 +292,8 @@ export const useAuthStore = defineStore('auth', {
     isLoggedIn: (state) => state.isAuthenticated,
     userRole: (state) => state.role,
     userName: (state) => state.user?.name || '',
+    userLastName: (state) => state.user?.last_name || '',
+    userEmail: (state) => state.user?.email || '',
+    userId: (state) => state.user?.id || null,
   },
 })

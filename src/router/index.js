@@ -10,16 +10,14 @@ const router = createRouter({
       component: () => import('../views/IndexView.vue'),
     },
     {
-      path: '/register',
-      name: 'register',
-      component: () => import('../views/RegisterView.vue'),
-      meta: { requiresGuest: true },
-    },
-    {
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue'),
-      meta: { requiresGuest: true },
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: () => import('../views/RegisterView.vue'),
     },
     {
       path: '/owner-profile',
@@ -40,45 +38,49 @@ const router = createRouter({
       meta: { requiresAuth: true, role: 'owner' },
     },
     {
+      path: '/admin',
+      name: 'admin-panel',
+      component: () => import('../views/AdminPanelView.vue'),
+      meta: { requiresAuth: true, role: 'admin' },
+    },
+    {
       path: '/forgot-password',
       name: 'forgot-password',
       component: () => import('../views/ForgotPasswordView.vue'),
-      meta: { requiresGuest: true },
     },
     {
-      path: '/reset-password/:token',
-      name: 'reset-password',
-      component: () => import('../views/ResetPasswordView.vue'),
-      meta: { requiresGuest: true },
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      name: 'not-found',
+      path: '/:catchAll(.*)',
+      name: 'NotFound',
       component: () => import('../views/NotFoundView.vue'),
     },
   ],
 })
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  authStore.initializeAuth()
+  const requiresAuth = to.meta.requiresAuth
+  const requiredRole = to.meta.role
 
-  const isAuthenticated = authStore.isLoggedIn
-  const userRole = authStore.userRole
-
-  if (to.meta.requiresGuest && isAuthenticated) {
-    return next({ name: 'index' })
+  if (requiresAuth && !authStore.isLoggedIn) {
+    next('/login')
+  } else if (requiresAuth && authStore.isLoggedIn) {
+    if (requiredRole && authStore.userRole !== requiredRole) {
+      alert('No tienes permiso para acceder a esta página.')
+      if (authStore.userRole === 'admin') {
+        next({ name: 'admin-panel' })
+      } else if (authStore.userRole === 'owner') {
+        next({ name: 'owner-profile' })
+      } else if (authStore.userRole === 'walker') {
+        next({ name: 'walker-profile' })
+      } else {
+        next('/')
+      }
+    } else {
+      next()
+    }
+  } else {
+    next()
   }
-
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    return next({ name: 'login' })
-  }
-
-  if (to.meta.role && to.meta.role !== userRole) {
-    return next({ name: 'index' })
-  }
-
-  next()
 })
 
 export default router

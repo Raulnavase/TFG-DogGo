@@ -3,18 +3,26 @@
     <form class="form" @submit.prevent="login">
       <router-link to="/" class="back-link">Volver a inicio</router-link>
       <p class="title">Iniciar sesión</p>
-      <input v-model="email" required placeholder="Email" class="email input" type="email" />
-      <input
+      <BaseInput
+        v-model="email"
+        required
+        placeholder="Email"
+        class="input-custom"
+        type="email"
+        label="Email"
+      />
+      <BaseInput
         v-model="password"
         required
         placeholder="Contraseña"
-        class="password input"
+        class="input-custom"
         type="password"
+        label="Contraseña"
       />
       <p>
         <router-link to="/forgot-password">¿Has olvidado la contraseña?</router-link>
       </p>
-      <button class="btn" type="submit">Entrar</button>
+      <BaseButton type="submit" class="btn">Entrar</BaseButton>
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       <router-link to="/register" class="register-link">¿No tienes cuenta? Registrarse</router-link>
     </form>
@@ -25,6 +33,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import BaseInput from '@/components/BaseInput.vue'
+import BaseButton from '@/components/BaseButton.vue'
 
 const email = ref('')
 const password = ref('')
@@ -37,15 +47,49 @@ const login = async () => {
   try {
     const success = await authStore.loginUser({ email: email.value, password: password.value })
     if (success) {
-      router.push({ name: `${authStore.userRole}-profile` })
+      if (authStore.userRole === 'admin') {
+        router.push({ name: 'admin-panel' })
+      } else if (authStore.userRole === 'owner') {
+        router.push({ name: 'owner-profile' })
+      } else if (authStore.userRole === 'walker') {
+        router.push({ name: 'walker-profile' })
+      } else {
+        router.push('/')
+      }
     }
   } catch (error) {
-    errorMessage.value = authStore.loginError || 'Error al iniciar sesión'
+    errorMessage.value = authStore.loginError || 'Error desconocido al iniciar sesión.'
+    console.error('Error en el componente de login:', error)
   }
 }
 </script>
 
 <style scoped>
+.input-custom {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.5rem;
+  width: 20rem;
+  max-width: 100%;
+  background-color: transparent;
+  color: wheat;
+  border: none;
+  border-bottom: 1px solid wheat;
+  outline: none;
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease;
+}
+
+.input-custom:hover,
+.input-custom:focus {
+  background-color: #424242;
+  border-bottom: 1px solid antiquewhite;
+}
+
+.input-custom::placeholder {
+  color: whitesmoke;
+}
+
 ::selection {
   background-color: gray;
   color: white;
@@ -93,31 +137,6 @@ const login = async () => {
   margin: 1.5rem 0;
   font-size: 2rem;
   font-weight: bold;
-}
-
-.input {
-  margin: 0.5rem 0;
-  padding: 0.5rem 0.5rem;
-  width: 20rem;
-  max-width: 100%;
-  background-color: transparent;
-  color: wheat;
-  border: none;
-  border-bottom: 1px solid wheat;
-  outline: none;
-  transition:
-    background-color 0.4s ease,
-    border-color 0.4s ease;
-}
-
-.input:hover,
-.input:focus {
-  background-color: #424242;
-  border-bottom: 1px solid antiquewhite;
-}
-
-.input::placeholder {
-  color: whitesmoke;
 }
 
 .register-link {
