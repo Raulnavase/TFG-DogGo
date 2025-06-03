@@ -1,31 +1,47 @@
 <template>
   <div class="container">
-    <form class="form" @submit.prevent="login">
-      <router-link to="/" class="back-link">Volver a inicio</router-link>
-      <p class="title">Iniciar sesión</p>
-      <BaseInput
-        v-model="email"
-        required
-        placeholder="Email"
-        class="input-custom"
-        type="email"
-        label="Email"
-      />
-      <BaseInput
-        v-model="password"
-        required
-        placeholder="Contraseña"
-        class="input-custom"
-        type="password"
-        label="Contraseña"
-      />
-      <p>
-        <router-link to="/forgot-password">¿Has olvidado la contraseña?</router-link>
-      </p>
-      <BaseButton type="submit" class="btn">Entrar</BaseButton>
-      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-      <router-link to="/register" class="register-link">¿No tienes cuenta? Registrarse</router-link>
-    </form>
+    <div class="box-form">
+      <form class="form" @submit.prevent="login">
+        <router-link to="/" class="back-link">Volver a inicio</router-link>
+        <p class="title">Iniciar sesión</p>
+        <input
+          class="input"
+          v-model="email"
+          type="email"
+          name="email"
+          id="email"
+          placeholder="Correo electrónico"
+        />
+        <input
+          class="input"
+          type="password"
+          name="password"
+          id="password"
+          v-model="password"
+          placeholder="Contraseña"
+        />
+        <p>
+          <router-link to="/forgot-password">¿Has olvidado la contraseña?</router-link>
+        </p>
+        <BaseButton type="submit" class="btn">Entrar</BaseButton>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+        <router-link to="/register" class="register-link"
+          >¿No tienes cuenta? Registrarse</router-link
+        >
+      </form>
+    </div>
+    <div class="box-logo-img">
+      <div class="logo">
+        <img src="../assets/logo-DogGo-blanco.png" alt="Logo DogGo" />
+        <div>
+          <h2>DogGo!</h2>
+          <p>Para ti, por ellos.</p>
+        </div>
+      </div>
+      <div class="img-login">
+        <img src="../assets/chicha-paseo.png" alt="Chica paseando perros" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -65,57 +81,76 @@ const login = async () => {
 </script>
 
 <style scoped>
-.input-custom {
-  margin: 0.5rem 0;
-  padding: 0.5rem 0.5rem;
-  width: 20rem;
-  max-width: 100%;
-  background-color: transparent;
-  color: wheat;
-  border: none;
-  border-bottom: 1px solid wheat;
-  outline: none;
-  transition:
-    background-color 0.4s ease,
-    border-color 0.4s ease;
-}
-
-.input-custom:hover,
-.input-custom:focus {
-  background-color: #424242;
-  border-bottom: 1px solid antiquewhite;
-}
-
-.input-custom::placeholder {
-  color: whitesmoke;
-}
-
-::selection {
-  background-color: gray;
-  color: white;
-}
-
 .container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
   height: 100vh;
   width: 100vw;
+  overflow: hidden;
+}
+
+.box-form {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #212121;
+  width: 50%;
+  height: 100%;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.box-logo-img {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  height: 100%;
+  background-color: #003978;
+}
+.logo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 40vw;
+  height: 30%;
+  margin-top: 5%;
+  margin-bottom: 3%;
+}
+
+.logo img {
+  height: 25vh;
+}
+.logo h2 {
+  color: #fecf35;
+  font-weight: bold;
+  font-size: 50px;
+  margin-top: 10px;
+}
+.logo p {
+  color: white;
+  font-size: 30px;
+  text-align: right;
+  font-weight: bold;
+  margin-block: 0.5rem;
+  width: 20vw;
+}
+
+.img-login {
+  height: 70%;
+}
+.img-login img {
+  height: 65vh;
+}
+
+.input {
 }
 
 .form {
-  width: 30%;
-  min-width: 300px;
-  height: 95%;
-  background-image: linear-gradient(to bottom, #424242, #212121);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  border-radius: 0.5rem;
-  padding: 20px;
-  position: relative;
 }
 
 .back-link {
@@ -129,50 +164,21 @@ const login = async () => {
 }
 
 .back-link:hover {
-  color: antiquewhite;
 }
 
 .title {
-  color: wheat;
-  margin: 1.5rem 0;
-  font-size: 2rem;
-  font-weight: bold;
 }
 
 .register-link {
-  color: whitesmoke;
-  text-decoration: none;
-  font-size: 0.9rem;
-  margin: 10px 0;
-  transition: color 0.4s ease;
 }
 
 .register-link:hover {
-  color: antiquewhite;
 }
 
 .btn {
-  height: 3rem;
-  width: 20rem;
-  max-width: 100%;
-  margin-top: 2rem;
-  background-color: wheat;
-  border-radius: 0.5rem;
-  border: none;
-  font-size: 1.2rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition:
-    background-color 0.4s ease,
-    box-shadow 0.4s ease;
-  box-shadow:
-    0 0 10px antiquewhite,
-    0 0 10px antiquewhite;
 }
 
 .btn:hover {
-  background-color: antiquewhite;
-  box-shadow: none;
 }
 
 .error-message {
