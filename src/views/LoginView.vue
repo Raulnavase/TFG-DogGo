@@ -1,33 +1,42 @@
 <template>
   <div class="container">
     <div class="box-form">
-      <form class="form" @submit.prevent="login">
-        <router-link to="/" class="back-link">Volver a inicio</router-link>
-        <p class="title">Iniciar sesión</p>
-        <input
-          class="input"
-          v-model="email"
-          type="email"
-          name="email"
-          id="email"
-          placeholder="Correo electrónico"
-        />
-        <input
-          class="input"
-          type="password"
-          name="password"
-          id="password"
-          v-model="password"
-          placeholder="Contraseña"
-        />
-        <p>
-          <router-link to="/forgot-password">¿Has olvidado la contraseña?</router-link>
-        </p>
-        <BaseButton type="submit" class="btn">Entrar</BaseButton>
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-        <router-link to="/register" class="register-link"
-          >¿No tienes cuenta? Registrarse</router-link
+      <div class="box-back-link">
+        <router-link to="/" class="back-link"
+          ><i class="fa-solid fa-dog fa-flip-horizontal"></i> Volver</router-link
         >
+      </div>
+      <form class="form" @submit.prevent="login">
+        <p class="title">Iniciar sesión</p>
+        <div class="inputs">
+          <input
+            class="input"
+            v-model="email"
+            type="email"
+            name="email"
+            id="email"
+            placeholder="Correo electrónico"
+          />
+          <input
+            class="input"
+            type="password"
+            name="password"
+            id="password"
+            v-model="password"
+            placeholder="Contraseña"
+          />
+        </div>
+        <p class="box-forgot-password">
+          <router-link class="forgot-password" to="/forgot-password"
+            >¿Has olvidado la contraseña?</router-link
+          >
+        </p>
+        <button type="submit" class="btn-entrar">Entrar</button>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+        <p>
+          ¿No tienes cuenta?
+          <router-link to="/register" class="register-link">Registrarse</router-link>
+        </p>
       </form>
     </div>
     <div class="box-logo-img">
@@ -97,10 +106,94 @@ const login = async () => {
   align-items: center;
   width: 50%;
   height: 100%;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+.back-link {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  margin: 1.5rem 4rem;
+  text-decoration: none;
+  color: black;
+  font-size: 25px;
+  &:hover {
+    letter-spacing: 2px;
+    transition: 0.4s;
+  }
+}
+
+.form {
+  /* border: 2px solid #003978; */
+  border-radius: 15px;
+  height: 80%;
+  width: 70%;
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  box-shadow: inset 1px 1px 5px 1px #003978;
+}
+
+.form .title {
+  font-size: 40px;
+  color: #003978;
+  font-weight: 500;
+  letter-spacing: 1px;
+  height: 15%;
+  line-height: 75px;
+}
+
+.form .inputs input {
+  border: 1.5px solid #003978;
+  color: #003978;
+  border-radius: 8px;
+  outline: none;
+  width: 60%;
+  height: 5vh;
+  padding-left: 7px;
+
+  &::placeholder {
+    color: #003978;
+    font-size: 15px;
+    letter-spacing: 1px;
+  }
+}
+
+.form .inputs {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 15%;
+}
+
+.forgot-password,
+.register-link {
+  color: #02b1e0;
+}
+
+.btn-entrar {
+  border: none;
+  background-color: #fecf35;
+  color: #003978;
+  width: 60%;
+  height: 5vh;
+  border-radius: 15px;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  cursor: pointer;
+  &:hover {
+    background-color: #003978;
+    color: #fecf35;
+    transition: 0.3s;
+  }
+}
+
+/* -------------------------- */
 
 .box-logo-img {
   display: flex;
@@ -116,7 +209,7 @@ const login = async () => {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  width: 40vw;
+  width: 100%;
   height: 30%;
   margin-top: 5%;
   margin-bottom: 3%;
@@ -127,8 +220,8 @@ const login = async () => {
 }
 .logo h2 {
   color: #fecf35;
-  font-weight: bold;
-  font-size: 50px;
+  font-weight: 800;
+  font-size: 70px;
   margin-top: 10px;
 }
 .logo p {
@@ -137,7 +230,7 @@ const login = async () => {
   text-align: right;
   font-weight: bold;
   margin-block: 0.5rem;
-  width: 20vw;
+  width: 15vw;
 }
 
 .img-login {
@@ -145,40 +238,6 @@ const login = async () => {
 }
 .img-login img {
   height: 65vh;
-}
-
-.input {
-}
-
-.form {
-}
-
-.back-link {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  color: whitesmoke;
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: color 0.4s ease;
-}
-
-.back-link:hover {
-}
-
-.title {
-}
-
-.register-link {
-}
-
-.register-link:hover {
-}
-
-.btn {
-}
-
-.btn:hover {
 }
 
 .error-message {
