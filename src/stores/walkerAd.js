@@ -12,7 +12,7 @@ export const useWalkerAdStore = defineStore('walkerAd', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await adsGet('/walker')
+      const response = await adsGet('/me')
       walkerAd.value = response.data
       console.log('Anuncio cargado en store:', walkerAd.value)
     } catch (err) {
