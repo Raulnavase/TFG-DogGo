@@ -1,78 +1,112 @@
 <template>
   <div class="container">
-    <form class="form" @submit.prevent="register">
-      <router-link to="/" class="back-link">Volver a inicio</router-link>
-      <p class="title">Registrarse</p>
-      <BaseInput
-        v-model="name"
-        required
-        placeholder="Nombre"
-        class="input-custom"
-        type="text"
-        label="Nombre"
-      />
-      <BaseInput
-        v-model="lastName"
-        required
-        placeholder="Apellido"
-        class="input-custom"
-        type="text"
-        label="Apellido"
-      />
-      <BaseInput
-        v-model="email"
-        required
-        placeholder="Email"
-        class="input-custom"
-        type="email"
-        label="Email"
-      />
-      <BaseInput
-        v-model="password"
-        required
-        placeholder="Contraseña"
-        class="input-custom"
-        type="password"
-        label="Contraseña"
-      />
-      <BaseInput
-        v-model="repPassword"
-        required
-        placeholder="Repite contraseña"
-        class="input-custom"
-        type="password"
-        label="Repite Contraseña"
-      />
-      <p class="consent">
-        Al crear una cuenta, aceptas nuestros Términos de uso. Para saber cómo tratamos tus datos,
-        consulta nuestra Política de privacidad.
-      </p>
-      <div class="box-role">
-        <legend>¿Qué rol te define?</legend>
-        <div>
-          <input v-model="role" type="radio" name="role" value="walker" id="walker" />
-          <label for="walker">Paseador de perro/s</label>
+    <div class="box-form">
+      <div class="mobile-header">
+        <div class="mobile-logo">
+          <img src="../assets/logo-DogGo-blanco.png" alt="Logo DogGo" />
+          <div>
+            <h2>DogGo!</h2>
+            <p>Para ti, por ellos.</p>
+          </div>
         </div>
-        <div>
-          <input v-model="role" type="radio" name="role" value="owner" id="owner" />
-          <label for="owner">Dueño de perro/s</label>
+
+        <div class="mobile-back-link">
+          <router-link to="/" class="back-link">
+            <i class="fa-solid fa-dog fa-flip-horizontal"></i> Volver
+          </router-link>
         </div>
       </div>
-      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-      <router-link to="/login" class="login-link">¿Ya tienes cuenta? Iniciar sesión</router-link>
-      <BaseButton class="btn" type="submit">Crear cuenta</BaseButton>
-    </form>
+
+      <form class="form" @submit.prevent="register">
+        <p class="title">Regístrate</p>
+        <div class="inputs">
+          <input class="input" v-model="name" required type="text" placeholder="Nombre" />
+          <input class="input" v-model="lastName" required type="text" placeholder="Apellido" />
+          <input class="input" v-model="email" required type="email" placeholder="Email" />
+          <input
+            class="input"
+            v-model="password"
+            required
+            type="password"
+            placeholder="Contraseña"
+          />
+          <input
+            class="input"
+            v-model="repPassword"
+            required
+            type="password"
+            placeholder="Repite contraseña"
+          />
+        </div>
+
+        <button type="submit" class="btn-registrarse">Registrarse</button>
+
+        <p class="login-text">
+          ¿Ya tienes cuenta?
+          <router-link to="/login" class="login-link">Iniciar sesión</router-link>
+        </p>
+
+        <p class="legend-role">Selecciona tu rol</p>
+        <div class="box-role">
+          <input
+            v-model="role"
+            type="radio"
+            name="role"
+            value="owner"
+            id="owner"
+            class="hidden-radio"
+          />
+          <label for="owner" class="role-button">Dueño</label>
+
+          <input
+            v-model="role"
+            type="radio"
+            name="role"
+            value="walker"
+            id="walker"
+            class="hidden-radio"
+          />
+          <label for="walker" class="role-button">Paseador</label>
+        </div>
+
+        <p class="consent">
+          Al registrarse, aceptas nuestros <br />
+          <router-link to="/terminos-y-condiciones" class="terms-link"
+            >términos y condiciones</router-link
+          >
+        </p>
+
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+      </form>
+    </div>
+
+    <div class="box-logo-img">
+      <div class="box-back-link">
+        <router-link to="/" class="back-link">
+          <i class="fa-solid fa-dog fa-flip-horizontal"></i> Volver
+        </router-link>
+      </div>
+      <div class="logo">
+        <img src="../assets/logo-DogGo-blanco.png" alt="Logo DogGo" />
+        <div>
+          <h2>DogGo!</h2>
+          <p>Para ti, por ellos.</p>
+        </div>
+      </div>
+      <div class="img-register">
+        <img src="../assets/chico-paseo.webp" alt="Chico paseando perros" />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import router from '@/router'
-import BaseInput from '@/components/BaseInput.vue'
-import BaseButton from '@/components/BaseButton.vue'
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 const name = ref('')
 const lastName = ref('')
@@ -105,7 +139,6 @@ const register = async () => {
     await authStore.registerUser(userData)
 
     if (authStore.registrationSuccess) {
-      console.log('Registro completado con éxito!')
       router.push('/login')
     } else {
       errorMessage.value = authStore.registrationError || 'Error desconocido al registrarse.'
@@ -119,144 +152,235 @@ const register = async () => {
 </script>
 
 <style scoped>
-.input-custom {
-  margin: 0.5rem 0;
-  padding: 0.5rem 0.5rem;
-  width: 20rem;
-  max-width: 100%;
-  background-color: transparent;
-  color: wheat;
-  border: none;
-  border-bottom: 1px solid wheat;
-  outline: none;
-  transition:
-    background-color 0.4s ease,
-    border-color 0.4s ease;
-}
-
-.input-custom:hover,
-.input-custom:focus {
-  background-color: #424242;
-  border-bottom: 1px solid antiquewhite;
-}
-
-.input-custom::placeholder {
-  color: whitesmoke;
-}
-
-::selection {
-  background-color: gray;
-  color: white;
-}
-
 .container {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
   height: 100vh;
   width: 100vw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #212121;
+  overflow: hidden;
 }
 
-.form {
-  width: 30%;
-  min-width: 300px;
-  height: 95%;
-  background-image: linear-gradient(to bottom, #424242, #212121);
+.box-form {
   display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
-  border-radius: 0.5rem;
-  padding: 20px;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  height: 100%;
+  background-color: white;
+}
+
+.box-logo-img {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  height: 100%;
+  background-color: #003978;
   position: relative;
 }
 
-.back-link {
+.box-back-link {
   position: absolute;
   top: 10px;
   left: 10px;
-  color: whitesmoke;
+  margin: 1.5rem 4rem;
+  z-index: 10;
+}
+
+.back-link {
   text-decoration: none;
-  font-size: 0.9rem;
-  transition: color 0.4s ease;
+  color: #02b1e0;
+  font-size: 25px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .back-link:hover {
-  color: antiquewhite;
+  letter-spacing: 2px;
+  transition: 0.4s;
 }
 
-.title {
-  color: wheat;
-  margin: 1.5rem 0;
-  font-size: 2rem;
+.logo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 30%;
+  margin-top: 5%;
+  margin-bottom: 3%;
+}
+
+.logo img {
+  height: 20vh;
+  margin-right: 15px;
+}
+
+.logo h2 {
+  color: #fecf35;
+  font-weight: 800;
+  font-size: 60px;
+  margin: 0;
+}
+
+.logo p {
+  color: white;
+  font-size: 25px;
   font-weight: bold;
+  margin-block: 0.5rem;
 }
 
-.consent {
-  color: whitesmoke;
-  width: 20rem;
+.img-register {
+  height: 70%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.img-register img {
+  height: 60vh;
   max-width: 100%;
-  margin-block: 10px;
-  font-size: 0.9rem;
-  text-align: center;
 }
 
-.box-role {
-  width: 20rem;
-  max-width: 100%;
-  margin: 1rem 0;
+.form {
+  border-radius: 15px;
+  height: 95%;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  border: 2px solid #003978;
 }
 
-.box-role legend {
-  margin-bottom: 5px;
-  color: wheat;
-  font-size: 20px;
+.form .title {
+  font-size: 40px;
+  color: #003978;
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
 }
 
-.box-role label {
-  color: whitesmoke;
-  margin-left: 5px;
+.form .inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.box-role div {
-  margin: 5px 0;
+.form .inputs input {
+  border: 1px solid #003978;
+  color: #003978;
+  border-radius: 8px;
+  outline: none;
+  width: 60%;
+  height: 5vh;
+  padding: 0 15px;
+}
+
+.form .inputs input::placeholder {
+  color: #003978;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+.btn-registrarse {
+  border: none;
+  background-color: #fecf35;
+  color: #003978;
+  width: 60%;
+  height: 5vh;
+  border-radius: 15px;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.btn-registrarse:hover {
+  background-color: #003978;
+  color: #fecf35;
+  transition: 0.3s;
+}
+
+.login-text {
+  color: black;
+  font-size: 1rem;
+  margin-top: 10px;
 }
 
 .login-link {
-  color: whitesmoke;
-  text-decoration: none;
-  font-size: 0.9rem;
-  margin: 10px 0;
-  transition: color 0.4s ease;
+  color: #02b1e0;
+  text-decoration: underline;
 }
 
-.login-link:hover {
-  color: antiquewhite;
-}
-
-.btn {
-  height: 3rem;
-  width: 20rem;
-  max-width: 100%;
-  margin-top: 2rem;
-  background-color: wheat;
-  border-radius: 0.5rem;
-  border: none;
-  font-size: 1.2rem;
+.legend-role {
+  color: black;
+  font-size: 1.1rem;
   font-weight: bold;
-  cursor: pointer;
-  transition:
-    background-color 0.4s ease,
-    box-shadow 0.4s ease;
-  box-shadow:
-    0 0 10px antiquewhite,
-    0 0 10px antiquewhite;
+  margin-top: 15px;
 }
 
-.btn:hover {
-  background-color: antiquewhite;
-  box-shadow: none;
+.box-role {
+  width: 60%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1.5px solid #02b1e0;
+  border-radius: 8px;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+.hidden-radio {
+  display: none;
+}
+
+.role-button {
+  flex: 1;
+  text-align: center;
+  padding: 10px 0;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #003978;
+  background-color: white;
+}
+
+.hidden-radio:checked + .role-button {
+  background-color: #02b1e0;
+  color: white;
+}
+
+.role-button:hover {
+  background-color: #e0f2f7;
+}
+
+.hidden-radio:checked + .role-button:hover {
+  background-color: #02b1e0;
+  color: white;
+}
+
+.consent {
+  color: black;
+  width: 60%;
+  margin-block: 10px;
+  font-size: 20px;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.terms-link {
+  color: #02b1e0;
+  text-decoration: underline;
 }
 
 .error-message {
@@ -264,5 +388,116 @@ const register = async () => {
   margin-top: 10px;
   font-size: 0.9rem;
   text-align: center;
+}
+
+.mobile-header {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    height: auto;
+    padding: 2rem 1rem;
+  }
+
+  .box-logo-img {
+    display: none;
+  }
+
+  .box-form {
+    width: 100%;
+    max-width: 400px;
+    padding: 0 1rem;
+  }
+
+  .mobile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .mobile-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    text-align: center;
+  }
+
+  .mobile-logo img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .mobile-logo h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fecf35;
+    margin: 0;
+    width: 100%;
+  }
+
+  .mobile-logo p {
+    font-size: 14px;
+    font-weight: bold;
+    color: #003978;
+    margin: 0;
+    width: 100%;
+  }
+
+  .mobile-back-link {
+    margin-top: 0.8rem;
+  }
+
+  .back-link {
+    font-size: 16px;
+    color: #003978;
+  }
+
+  .form {
+    width: 100%;
+    border: none;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .form .title {
+    font-size: 28px;
+    text-align: center;
+  }
+
+  .form .inputs input {
+    width: 100%;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .btn-registrarse {
+    width: 100%;
+    height: 50px;
+    border-radius: 999px;
+  }
+
+  .box-role,
+  .consent,
+  .login-text,
+  .error-message {
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .box-role {
+    gap: 10px;
+  }
+
+  .role-button {
+    font-size: 14px;
+    padding: 8px;
+  }
 }
 </style>

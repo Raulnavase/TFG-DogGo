@@ -1,11 +1,20 @@
 <template>
   <div class="container">
     <div class="box-form">
-      <div class="box-back-link">
-        <router-link to="/" class="back-link"
-          ><i class="fa-solid fa-dog fa-flip-horizontal"></i> Volver</router-link
-        >
+      <div class="mobile-logo">
+        <img src="../assets/logo-DogGo-blanco.png" alt="Logo DogGo" />
+        <div>
+          <h2>DogGo!</h2>
+          <p>Para ti, por ellos.</p>
+        </div>
       </div>
+
+      <div class="box-back-link mobile-back-link">
+        <router-link to="/" class="back-link">
+          <i class="fa-solid fa-dog fa-flip-horizontal"></i> Volver
+        </router-link>
+      </div>
+
       <form class="form" @submit.prevent="login">
         <p class="title">Iniciar sesión</p>
         <div class="inputs">
@@ -27,9 +36,9 @@
           />
         </div>
         <p class="box-forgot-password">
-          <router-link class="forgot-password" to="/forgot-password"
-            >¿Has olvidado la contraseña?</router-link
-          >
+          <router-link class="forgot-password" to="/forgot-password">
+            ¿Has olvidado la contraseña?
+          </router-link>
         </p>
         <button type="submit" class="btn-entrar">Entrar</button>
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
@@ -39,6 +48,7 @@
         </p>
       </form>
     </div>
+
     <div class="box-logo-img">
       <div class="logo">
         <img src="../assets/logo-DogGo-blanco.png" alt="Logo DogGo" />
@@ -58,8 +68,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import BaseInput from '@/components/BaseInput.vue'
-import BaseButton from '@/components/BaseButton.vue'
 
 const email = ref('')
 const password = ref('')
@@ -116,14 +124,14 @@ const login = async () => {
   text-decoration: none;
   color: black;
   font-size: 25px;
-  &:hover {
-    letter-spacing: 2px;
-    transition: 0.4s;
-  }
+}
+
+.back-link:hover {
+  letter-spacing: 2px;
+  transition: 0.4s;
 }
 
 .form {
-  /* border: 2px solid #003978; */
   border-radius: 15px;
   height: 80%;
   width: 70%;
@@ -133,7 +141,7 @@ const login = async () => {
   justify-content: center;
   align-items: center;
   gap: 20px;
-  box-shadow: inset 1px 1px 5px 1px #003978;
+  border: 2px solid #003978;
 }
 
 .form .title {
@@ -153,12 +161,12 @@ const login = async () => {
   width: 60%;
   height: 5vh;
   padding-left: 7px;
+}
 
-  &::placeholder {
-    color: #003978;
-    font-size: 15px;
-    letter-spacing: 1px;
-  }
+.form .inputs input::placeholder {
+  color: #003978;
+  font-size: 15px;
+  letter-spacing: 1px;
 }
 
 .form .inputs {
@@ -186,14 +194,13 @@ const login = async () => {
   font-weight: 500;
   letter-spacing: 1px;
   cursor: pointer;
-  &:hover {
-    background-color: #003978;
-    color: #fecf35;
-    transition: 0.3s;
-  }
 }
 
-/* -------------------------- */
+.btn-entrar:hover {
+  background-color: #003978;
+  color: #fecf35;
+  transition: 0.3s;
+}
 
 .box-logo-img {
   display: flex;
@@ -204,6 +211,7 @@ const login = async () => {
   height: 100%;
   background-color: #003978;
 }
+
 .logo {
   display: flex;
   flex-direction: row;
@@ -221,16 +229,16 @@ const login = async () => {
 .logo h2 {
   color: #fecf35;
   font-weight: 800;
-  font-size: 70px;
+  font-size: 50px;
   margin-top: 10px;
 }
 .logo p {
   color: white;
-  font-size: 30px;
+  font-size: 25px;
   text-align: right;
   font-weight: bold;
   margin-block: 0.5rem;
-  width: 15vw;
+  width: 20vw;
 }
 
 .img-login {
@@ -245,5 +253,139 @@ const login = async () => {
   margin-top: 10px;
   font-size: 0.9rem;
   text-align: center;
+}
+
+.mobile-logo {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    height: auto;
+    padding: 2rem 1rem;
+  }
+
+  .box-logo-img {
+    display: none;
+  }
+
+  .box-form {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    padding: 0 1rem;
+    margin-top: 0;
+  }
+
+  .mobile-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    text-align: center;
+  }
+
+  .mobile-logo img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .mobile-logo h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fecf35;
+    margin: 0;
+    width: 100%;
+  }
+
+  .mobile-logo p {
+    font-size: 14px;
+    font-weight: bold;
+    color: #003978;
+    margin: 0;
+    width: 100%;
+  }
+
+  .mobile-back-link {
+    width: 100%;
+    text-align: center;
+    margin: 1rem 0;
+  }
+
+  .back-link {
+    position: static;
+    font-size: 16px;
+    text-decoration: none;
+    color: #003978;
+  }
+
+  .form {
+    width: 100%;
+    border: none;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .form .title {
+    font-size: 28px;
+    text-align: center;
+  }
+
+  .form .inputs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+    margin-bottom: 20px;
+    margin-top: 15px;
+  }
+
+  .form .inputs input {
+    width: 100%;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .form .inputs input::placeholder {
+    color: #003978;
+    font-size: 15px;
+    letter-spacing: 1px;
+  }
+
+  .box-forgot-password {
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .btn-entrar {
+    width: 100%;
+    height: 50px;
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  .form p {
+    font-size: 14px;
+    text-align: center;
+    margin: 0;
+  }
+
+  .register-link {
+    font-weight: 600;
+    margin-left: 5px;
+  }
+
+  .error-message {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+  }
 }
 </style>
