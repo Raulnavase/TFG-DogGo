@@ -25,7 +25,20 @@
         </div>
       </div>
     </header>
-    <div class="main"></div>
+    <div class="box-content">
+      <div class="box-text">
+        <h2>Conecta paseadores<br />con dueños de perros</h2>
+        <p>Encuentra fácilmente paseadores de<br />perros de confianza en tu área.</p>
+        <div class="box-btn-empezar">
+          <button @click="goToProfile">Empezar 🐾</button>
+        </div>
+      </div>
+      <div class="footer">
+        <span>Privacidad</span>
+        <span>Términos</span>
+        <span>Contacto</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -36,6 +49,14 @@ import { computed } from 'vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
+
+const goToProfile = () => {
+  if (authStore.isLoggedIn && profileRoute.value) {
+    router.push(profileRoute.value)
+  } else {
+    router.push('/login')
+  }
+}
 
 const profileRoute = computed(() => {
   if (authStore.userRole !== 'admin') {
@@ -80,11 +101,13 @@ const handleLogout = () => {
 .header .logo {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .header .logo img {
   height: 60px;
   margin-right: 1rem;
+  cursor: pointer;
 }
 
 .header .logo h2 {
@@ -92,6 +115,7 @@ const handleLogout = () => {
   font-weight: 800;
   font-size: 2rem;
   margin: 0;
+  cursor: pointer;
 }
 
 .header .logo p {
@@ -101,6 +125,7 @@ const handleLogout = () => {
   font-weight: 600;
   text-align: end;
   width: 25vh;
+  cursor: pointer;
 }
 
 .box-btns-navbar {
@@ -144,8 +169,11 @@ const handleLogout = () => {
   opacity: 0.85;
 }
 
-.wrapper .main {
+.box-content {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
   height: 100%;
   width: 100%;
   background-image: url('../assets/index-dog.jpg');
@@ -153,5 +181,86 @@ const handleLogout = () => {
   background-size: contain;
   background-repeat: no-repeat;
   background-color: #39c3e8;
+}
+
+.box-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 90%;
+  width: 50%;
+  text-align: center;
+  gap: 1rem;
+}
+
+.box-text h2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 30%;
+  font-weight: bold;
+  font-size: 50px;
+  color: #003978;
+  letter-spacing: 1px;
+}
+
+.box-text p {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #003978;
+  font-size: 25px;
+  width: 100%;
+  height: 15%;
+  letter-spacing: 1px;
+}
+
+.box-text .box-btn-empezar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 20%;
+}
+
+.box-btn-empezar button {
+  border: none;
+  font-size: 20px;
+  border-radius: 10px;
+  height: 45%;
+  width: 25%;
+  font-weight: bold;
+  color: #003978;
+  background-color: #fecf35;
+  cursor: pointer;
+}
+
+.box-btn-empezar button:hover {
+  scale: 1.1;
+  box-shadow: #fecf35 2px 2px 10px 2px;
+  transition: 0.4s;
+}
+
+.footer {
+  height: 10%;
+  width: 50%;
+  text-align: center;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  text-align: center;
+  flex-direction: row;
+  font-weight: bold;
+  color: white;
+}
+
+.footer span {
+  cursor: pointer;
+}
+
+.footer span:hover {
+  opacity: 60%;
 }
 </style>
