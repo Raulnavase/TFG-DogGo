@@ -265,6 +265,7 @@ const login = async () => {
     flex-direction: column;
     height: auto;
     padding: 2rem 1rem;
+    margin-top: 10vh;
   }
 
   .box-logo-img {

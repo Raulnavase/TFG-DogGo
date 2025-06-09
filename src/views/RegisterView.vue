@@ -401,6 +401,7 @@ const register = async () => {
     flex-direction: column;
     height: auto;
     padding: 2rem 1rem;
+    margin-top: 5vh;
   }
 
   .box-logo-img {
