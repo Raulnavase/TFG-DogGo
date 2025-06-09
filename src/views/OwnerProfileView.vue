@@ -13,7 +13,9 @@
       <div class="box-btns-navbar">
         <button @click="goToHome">Inicio</button>
         <button @click="goToActiveWalks">Paseos Activos</button>
-        <button @click="logout">Cerrar sesión</button>
+        <button @click="logout">
+          Cerrar sesión <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
         <button @click="showPersonalInfo = true">Información personal</button>
       </div>
     </header>

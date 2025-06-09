@@ -5,7 +5,9 @@
       <div class="nav-buttons">
         <button @click="goToProfile">Perfil</button>
         <button @click="goToHome">Inicio</button>
-        <button @click="logout">Cerrar sesión</button>
+        <button @click="logout">
+          Cerrar sesión <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
       </div>
     </header>
 
