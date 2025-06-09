@@ -1,18 +1,31 @@
 <template>
   <div class="wrapper">
-    <div class="circle"></div>
-    <div class="text-box">
-      <h1>DogGo!</h1>
-      <h3>Para ti, por ellos.</h3>
-      <div v-if="!authStore.isLoggedIn">
-        <router-link to="/login">Iniciar sesión</router-link>
-        <router-link to="/register">Registrarse</router-link>
+    <header class="header">
+      <div class="box-logo-img">
+        <div class="logo">
+          <img src="../assets/logo-DogGo-blanco.png" alt="Logo DogGo" />
+          <div>
+            <h2>DogGo!</h2>
+            <p>Para ti, por ellos.</p>
+          </div>
+        </div>
       </div>
-      <div v-else>
-        <router-link v-if="profileRoute" :to="profileRoute">Perfil</router-link>
-        <button @click="handleLogout">Cerrar sesión</button>
+      <div class="box-btns-navbar">
+        <div class="btns" v-if="!authStore.isLoggedIn">
+          <router-link to="/login">Iniciar sesión</router-link>
+          <router-link to="/register">Registrarse</router-link>
+        </div>
+        <div class="btns" v-else>
+          <router-link v-if="profileRoute" :to="profileRoute"
+            >Perfil <i class="fa-solid fa-shield-dog"></i
+          ></router-link>
+          <button @click="handleLogout">
+            Cerrar sesión <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
       </div>
-    </div>
+    </header>
+    <div class="main"></div>
   </div>
 </template>
 
@@ -41,94 +54,104 @@ const handleLogout = () => {
 
 <style scoped>
 .wrapper {
-  background-color: rgb(1 213 236);
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background-color: #003978;
   display: flex;
   justify-content: space-around;
-  flex-direction: row;
-  text-align: center;
+  align-items: center;
+  padding: 1rem 2rem;
+  height: 20%;
+  width: 100%;
+}
+
+.header .box-logo-img {
+  display: flex;
+  align-items: center;
+  width: 50%;
+}
+
+.header .logo {
+  display: flex;
   align-items: center;
 }
-.circle {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 50vw;
-  height: 100vh;
-  background-color: rgb(255 204 1);
-  border-top-left-radius: 50vw;
-  border-bottom-left-radius: 50vw;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  z-index: 0;
-}
-.wrapper img {
-  top: 0;
-  z-index: 1;
-  height: 110vh;
-  width: 50%;
-  margin-bottom: 2rem;
+
+.header .logo img {
+  height: 60px;
+  margin-right: 1rem;
 }
 
-.text-box {
-  position: relative;
-  z-index: 1;
-  width: 40%;
-  height: 60%;
-  padding: 20px;
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 10px;
+.header .logo h2 {
+  color: #fecf35;
+  font-weight: 800;
+  font-size: 2rem;
+  margin: 0;
 }
 
-.wrapper > *:not(.circle) {
-  position: relative;
-}
-
-h1 {
-  color: #333;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-}
-
-a,
-button {
-  display: inline-block;
-  padding: 10px 20px;
-  margin: 10px;
-  text-decoration: none;
+.header .logo p {
+  color: white;
+  margin: 0;
   font-size: 1rem;
-  font-weight: bold;
-  border-radius: 5px;
-  transition: opacity 0.3s ease;
+  font-weight: 600;
+  text-align: end;
+  width: 25vh;
 }
 
-a:hover,
-button:hover {
-  opacity: 0.9;
+.box-btns-navbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 40%;
 }
 
-a[to='/login'] {
-  background-color: #007bff;
-  color: white;
+.box-btns-navbar div {
+  display: flex;
+  justify-content: space-around;
+  width: 80%;
 }
 
-a[to='/register'] {
-  background-color: #28a745;
-  color: white;
+.btns a,
+.btns button {
+  background-color: #fecf35;
+  color: #003978;
+  font-weight: 700;
+  font-size: 1rem;
+  border: 2px solid #fecf35;
+  border-radius: 10px;
+  padding: 0.6rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
 }
 
-a[to$='-profile'] {
-  background-color: #007bff;
-  color: white;
-}
-
-button {
-  background-color: #dc3545;
-  color: white;
-  border: none;
+.btns button {
+  background-color: transparent;
+  color: #fecf35;
+  border: 2px solid #fecf35;
   cursor: pointer;
+}
+
+.btns a:hover,
+.btns button:hover {
+  opacity: 0.85;
+}
+
+.wrapper .main {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  background-image: url('../assets/index-dog.jpg');
+  background-position: center right;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #39c3e8;
 }
 </style>
