@@ -30,9 +30,8 @@ def create_ad():
     result = mongo.db.advertisements.insert_one(ad_data)
     return jsonify({"msg": "Anuncio creado", "ad_id": str(result.inserted_id)}), 201
 
+
 @advertisements_bp.route('/all', methods=['GET'])
-@jwt_required()
-@role_required('owner')
 def get_all_ads():
     locality = request.args.get('locality')
     query = {"paused": False}
@@ -50,6 +49,7 @@ def get_all_ads():
         ad['walker_email'] = walker['email'] if walker else 'Desconocido'
         ads_list.append(ad)
     return jsonify(ads_list), 200
+
 
 @advertisements_bp.route('/walker', methods=['GET'])
 @jwt_required()
