@@ -61,7 +61,17 @@ router.beforeEach((to, from, next) => {
   const requiresAuth = to.meta.requiresAuth
   const requiredRole = to.meta.role
 
-  if (requiresAuth && !authStore.isLoggedIn) {
+  if (authStore.isLoggedIn && (to.name === 'login' || to.name === 'register')) {
+    if (authStore.userRole === 'admin') {
+      next({ name: 'admin-panel' })
+    } else if (authStore.userRole === 'owner') {
+      next({ name: 'owner-profile' })
+    } else if (authStore.userRole === 'walker') {
+      next({ name: 'walker-profile' })
+    } else {
+      next('/')
+    }
+  } else if (requiresAuth && !authStore.isLoggedIn) {
     next('/login')
   } else if (requiresAuth && authStore.isLoggedIn) {
     if (requiredRole && authStore.userRole !== requiredRole) {
