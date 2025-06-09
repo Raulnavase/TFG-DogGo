@@ -124,7 +124,11 @@
           </div>
         </div>
 
-        <form v-if="authStore.showAddDogForm" @submit.prevent="validateAndAddDog">
+        <form
+          v-if="authStore.showAddDogForm"
+          @submit.prevent="validateAndAddDog"
+          class="add-dog-form"
+        >
           <h3>Agregar Nuevo Perro</h3>
           <div>
             <label for="add-name">Nombre:</label>
@@ -168,7 +172,7 @@
         <div v-if="authStore.showEditDogForm" class="modal-overlay">
           <div class="modal-content">
             <h3>Editar Perro</h3>
-            <form @submit.prevent="validateAndUpdateDog">
+            <form @submit.prevent="validateAndUpdateDog" class="edit-dog-form">
               <div>
                 <label for="edit-name">Nombre:</label>
                 <input type="text" id="edit-name" v-model="authStore.editDog.name" required />
@@ -298,7 +302,6 @@ import { useAuthStore } from '@/stores/auth'
 import { useDogStore } from '@/stores/dog'
 import { requestsGet, requestsPatch, requestsDelete } from '../../api/api'
 
-// --- Status Text Helper ---
 const statusText = (status) => {
   switch (status) {
     case 'pendiente':
@@ -316,32 +319,27 @@ const statusText = (status) => {
   }
 }
 
-// --- Vue Router and Stores ---
 const router = useRouter()
 const authStore = useAuthStore()
 const dogStore = useDogStore()
 
-// --- Personal Info Modal State ---
 const showPersonalInfo = ref(false)
 const editPersonal = ref(false)
 const showChangePassword = ref(false)
-const confirmDelete = ref(false) // Para la eliminación de cuenta
+const confirmDelete = ref(false)
 
-// --- Personal Info Data ---
 const editName = ref(authStore.user?.name || '')
 const editLastName = ref(authStore.user?.last_name || '')
 const editEmail = ref(authStore.user?.email || '')
 const personalError = ref('')
 const personalSuccess = ref('')
 
-// --- Password Change Data ---
 const passwordError = ref('')
 const passwordSuccess = ref('')
 const oldPassword = ref('')
 const newPassword = ref('')
 const repeatNewPassword = ref('')
 
-// --- Dog Breed Data and State ---
 const breeds = ref([])
 const showCustomBreedAdd = ref(false)
 const showCustomBreedEdit = ref(false)
@@ -350,12 +348,10 @@ const customBreedEdit = ref('')
 const selectedBreedAdd = ref('')
 const selectedBreedEdit = ref('')
 
-// --- Owner Requests Data ---
 const ownerRequests = ref([])
 const ownerRequestsLoading = ref(false)
 const ownerRequestsError = ref('')
 
-// --- Watcher for Personal Info Modal ---
 watch(
   () => showPersonalInfo.value,
   (val) => {
@@ -363,18 +359,16 @@ watch(
       editName.value = authStore.user.name
       editLastName.value = authStore.user.last_name
       editEmail.value = authStore.user.email
-      // Reset success/error messages when opening modal
       personalError.value = ''
       personalSuccess.value = ''
       passwordError.value = ''
       passwordSuccess.value = ''
-      editPersonal.value = false // Ensure personal info view is default
-      showChangePassword.value = false // Ensure password change view is hidden
+      editPersonal.value = false
+      showChangePassword.value = false
     }
   },
 )
 
-// --- Watcher for Edit Dog Form ---
 watch(
   () => authStore.showEditDogForm,
   (val) => {
@@ -390,7 +384,6 @@ watch(
         customBreedEdit.value = currentBreed
       }
     } else {
-      // Reset when edit dog form is closed
       selectedBreedEdit.value = ''
       customBreedEdit.value = ''
       showCustomBreedEdit.value = false
@@ -398,7 +391,6 @@ watch(
   },
 )
 
-// --- Fetch Owner Requests ---
 const fetchOwnerRequests = async () => {
   ownerRequestsLoading.value = true
   ownerRequestsError.value = ''
@@ -412,11 +404,10 @@ const fetchOwnerRequests = async () => {
   }
 }
 
-// --- Request Actions ---
 const cancelRequest = async (id) => {
   try {
     await requestsPatch(`/${id}/cancel`)
-    fetchOwnerRequests() // Refresh requests after cancellation
+    fetchOwnerRequests()
   } catch (e) {
     console.error('Error al cancelar la solicitud:', e)
     alert(e?.response?.data?.msg || 'Error al cancelar la solicitud')
@@ -426,14 +417,13 @@ const cancelRequest = async (id) => {
 const deleteRequest = async (id) => {
   try {
     await requestsDelete(`/${id}`)
-    fetchOwnerRequests() // Refresh requests after deletion
+    fetchOwnerRequests()
   } catch (e) {
     console.error('Error al eliminar la solicitud:', e)
     alert(e?.response?.data?.msg || 'Error al eliminar la solicitud')
   }
 }
 
-// --- Personal Data Actions ---
 const savePersonalData = async () => {
   personalError.value = ''
   personalSuccess.value = ''
@@ -454,13 +444,11 @@ const cancelEditPersonal = () => {
   editPersonal.value = false
   personalError.value = ''
   personalSuccess.value = ''
-  // Reset fields to current user data if canceled
   editName.value = authStore.user?.name || ''
   editLastName.value = authStore.user?.last_name || ''
   editEmail.value = authStore.user?.email || ''
 }
 
-// --- Password Change Actions ---
 const changePassword = async () => {
   passwordError.value = ''
   passwordSuccess.value = ''
@@ -487,7 +475,6 @@ const changePassword = async () => {
   }
 }
 
-// --- Navigation ---
 const goToHome = () => {
   router.push({ name: 'index' })
 }
@@ -501,7 +488,6 @@ const logout = async () => {
   router.push({ name: 'index' })
 }
 
-// --- Account Deletion ---
 const deleteAccount = async () => {
   try {
     await authStore.deleteUserAccount()
@@ -509,11 +495,10 @@ const deleteAccount = async () => {
   } catch (e) {
     alert(e?.response?.data?.msg || 'Error al eliminar la cuenta')
   } finally {
-    confirmDelete.value = false // Close confirmation dialog
+    confirmDelete.value = false
   }
 }
 
-// --- Breed Management ---
 const fetchBreeds = async () => {
   if (dogStore.breeds.length === 0) {
     try {
@@ -535,22 +520,21 @@ const handleBreedChange = (formType) => {
     showCustomBreedAdd.value = selectedBreedAdd.value === 'Otra'
     if (!showCustomBreedAdd.value) {
       authStore.newDog.breed = selectedBreedAdd.value
-      customBreedAdd.value = '' // Clear custom breed if not 'Otra'
+      customBreedAdd.value = ''
     } else {
-      authStore.newDog.breed = customBreedAdd.value // Set to custom breed if 'Otra' is selected
+      authStore.newDog.breed = customBreedAdd.value
     }
   } else {
     showCustomBreedEdit.value = selectedBreedEdit.value === 'Otra'
     if (!showCustomBreedEdit.value) {
       authStore.editDog.breed = selectedBreedEdit.value
-      customBreedEdit.value = '' // Clear custom breed if not 'Otra'
+      customBreedEdit.value = ''
     } else {
-      authStore.editDog.breed = customBreedEdit.value // Set to custom breed if 'Otra' is selected
+      authStore.editDog.breed = customBreedEdit.value
     }
   }
 }
 
-// Update the dog breed reactivity when the custom breed input changes.
 const handleCustomBreedInput = (formType) => {
   if (formType === 'add') {
     authStore.newDog.breed = customBreedAdd.value
@@ -559,9 +543,7 @@ const handleCustomBreedInput = (formType) => {
   }
 }
 
-// --- Dog Form Validations ---
 const validateAndAddDog = async () => {
-  // Ensure the breed is set correctly from either the select or the custom input
   if (selectedBreedAdd.value === 'Otra') {
     authStore.newDog.breed = customBreedAdd.value
   } else {
@@ -570,11 +552,10 @@ const validateAndAddDog = async () => {
 
   if (!authStore.newDog.name || !authStore.newDog.age || !authStore.newDog.breed) {
     authStore.addDogError = 'Todos los campos son obligatorios, incluida la raza.'
-    authStore.addDogSuccess = '' // Clear success message on error
+    authStore.addDogSuccess = ''
     return
   }
 
-  // Basic validation for age
   if (authStore.newDog.age <= 0) {
     authStore.addDogError = 'La edad debe ser un número positivo.'
     authStore.addDogSuccess = ''
@@ -583,7 +564,6 @@ const validateAndAddDog = async () => {
 
   await authStore.addDog()
   if (authStore.addDogSuccess) {
-    // Reset form fields after successful addition
     selectedBreedAdd.value = ''
     customBreedAdd.value = ''
     showCustomBreedAdd.value = false
@@ -591,7 +571,6 @@ const validateAndAddDog = async () => {
 }
 
 const validateAndUpdateDog = async () => {
-  // Ensure the breed is set correctly from either the select or the custom input
   if (selectedBreedEdit.value === 'Otra') {
     authStore.editDog.breed = customBreedEdit.value
   } else {
@@ -600,11 +579,10 @@ const validateAndUpdateDog = async () => {
 
   if (!authStore.editDog.name || !authStore.editDog.age || !authStore.editDog.breed) {
     authStore.editDogError = 'Todos los campos son obligatorios, incluida la raza.'
-    authStore.editDogSuccess = '' // Clear success message on error
+    authStore.editDogSuccess = ''
     return
   }
 
-  // Basic validation for age
   if (authStore.editDog.age <= 0) {
     authStore.editDogError = 'La edad debe ser un número positivo.'
     authStore.editDogSuccess = ''
@@ -613,17 +591,14 @@ const validateAndUpdateDog = async () => {
 
   await authStore.updateDog()
   if (authStore.editDogSuccess) {
-    // Reset form fields after successful update
     selectedBreedEdit.value = ''
     customBreedEdit.value = ''
     showCustomBreedEdit.value = false
   }
 }
 
-// --- Utility: Capitalize First Letter ---
 const capitalize = (str) => (str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : '')
 
-// --- On Mounted Lifecycle Hook ---
 onMounted(async () => {
   authStore.initializeAuth()
   if (!authStore.isLoggedIn) {
@@ -631,29 +606,27 @@ onMounted(async () => {
   } else {
     await authStore.fetchDogs()
     await fetchBreeds()
-    fetchOwnerRequests() // Fetch requests once the user is logged in
+    fetchOwnerRequests()
   }
 })
 </script>
 
 <style scoped>
-/* Reseteo para el scroll global */
 html,
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* ¡Importante! Elimina el scroll del html y body */
-  height: 100%; /* Asegura que ocupen toda la altura */
-  width: 100%; /* Asegura que ocupen todo el ancho */
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
 }
 
-/* GENERAL LAYOUT & HEADER */
 .wrapper {
-  height: 100vh; /* Ocupa el 100% del viewport height */
-  width: 100vw; /* Ocupa el 100% del viewport width */
+  height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* ¡Importante! Elimina el scroll del wrapper */
+  overflow: hidden;
 }
 
 .header {
@@ -662,7 +635,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  flex-shrink: 0; /* Asegura que el header no se encoja */
+  flex-shrink: 0;
 }
 
 .header .box-logo-img {
@@ -701,15 +674,22 @@ body {
   cursor: pointer;
 }
 
+.box-btns-navbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
 .box-btns-navbar button {
   background-color: #fecf35;
   color: #003978;
   border: none;
   border-radius: 10px;
   font-weight: bold;
-  margin-left: 0.5rem;
   padding: 0.5rem 1rem;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .box-btns-navbar button:hover {
@@ -720,24 +700,24 @@ body {
   margin: 1rem 2rem;
   padding: 1rem 2rem;
   font-size: 1.5rem;
-  flex-shrink: 0; /* Asegura que el título no se encoja */
+  flex-shrink: 0;
 }
 
 .main {
   display: flex;
   flex-direction: column;
-  flex-grow: 1; /* Permite que el main ocupe el espacio restante */
-  overflow: hidden; /* Evita el scroll en el main, el scroll estará en sub-elementos */
+  flex-grow: 1;
+  overflow: hidden;
 }
 
 .dogs-requests {
   display: flex;
   flex-direction: row;
   width: 100%;
-  flex-grow: 1; /* Asegura que esta sección ocupe el espacio disponible */
+  flex-grow: 1;
   gap: 2rem;
   padding: 1rem 2rem;
-  overflow: hidden; /* Evita scroll en este contenedor, el scroll estará en sub-elementos */
+  overflow: hidden;
 }
 
 .box-mydogs,
@@ -762,41 +742,40 @@ h2 {
   display: flex;
   align-items: center;
   gap: 1rem;
-  flex-shrink: 0; /* Asegura que el título no se encoja */
+  flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
-/* Estilo para el botón "Agregar Perro" dentro del h2 (estilo corporativo) */
 .btn-add-dog {
-  background-color: #fecf35; /* Color amarillo corporativo */
-  color: #003978; /* Color azul corporativo */
+  background-color: #fecf35;
+  color: #003978;
   border: none;
   border-radius: 10px;
   font-weight: bold;
   padding: 0.3rem 0.8rem;
   font-size: 0.9rem;
   cursor: pointer;
-  margin: 0; /* Asegura que no tenga márgenes adicionales */
+  margin: 0;
   transition:
     background-color 0.2s ease,
     transform 0.1s ease;
+  white-space: nowrap;
 }
 
 .btn-add-dog:hover {
-  background-color: #ffda6a; /* Amarillo más claro al pasar el ratón */
-  transform: translateY(-1px); /* Efecto ligero de levantamiento */
+  background-color: #ffda6a;
+  transform: translateY(-1px);
 }
 
-/* Contenedor para la lista de perros con scroll */
 .dogs-list-container,
 .requests-list-container {
-  flex-grow: 1; /* Permite que este contenedor ocupe el espacio restante */
-  overflow-y: auto; /* Habilita el scroll vertical si es necesario */
-  padding-right: 0.5rem; /* Pequeño padding para el scrollbar */
-  scrollbar-width: thin; /* Para Firefox */
-  scrollbar-color: #003978 #f0f0f0; /* Para Firefox */
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: #003978 #f0f0f0;
 }
 
-/* Estilos para el scrollbar en Webkit (Chrome, Safari, Edge) */
 .dogs-list-container::-webkit-scrollbar,
 .requests-list-container::-webkit-scrollbar {
   width: 8px;
@@ -815,7 +794,6 @@ h2 {
   border: 2px solid #f0f0f0;
 }
 
-/* --- Estilos para las Tarjetas de Perro --- */
 .dog-cards-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -895,9 +873,6 @@ h2 {
   background-color: #c82333;
 }
 
-/* --- FIN Estilos para las Tarjetas de Perro --- */
-
-/* General button styling */
 button {
   background-color: #fecf35;
   color: #003978;
@@ -920,15 +895,16 @@ form {
   flex-direction: column;
   gap: 0.7rem;
   max-width: 400px;
+  width: 100%;
   margin-top: 1rem;
   background-color: #f9f9f9;
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0; /* Evita que el formulario se encoja */
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
-/* Ajuste específico para formularios dentro de modales, para que no tengan el background y box-shadow del formulario por defecto */
 .modal-content > form {
   background-color: transparent;
   box-shadow: none;
@@ -976,21 +952,21 @@ select {
   margin-top: 0.5rem;
 }
 
-/* Estilos para el nuevo div de botones dentro del formulario */
 .form-actions {
   display: flex;
-  justify-content: center; /* Centra los botones horizontalmente */
-  gap: 1rem; /* Espacio entre los botones */
-  margin-top: 1rem; /* Margen superior para separarlo de los inputs */
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .form-actions button {
-  flex-grow: 1; /* Permite que los botones ocupen el espacio disponible de forma equitativa */
-  max-width: 150px; /* Limita el ancho máximo para que no sean demasiado grandes */
-  margin: 0; /* Elimina los márgenes predeterminados para que `gap` funcione */
+  flex-grow: 1;
+  max-width: 150px;
+  min-width: 120px;
+  margin: 0;
 }
 
-/* MODALES */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1002,6 +978,8 @@ select {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .modal-content {
@@ -1010,24 +988,23 @@ select {
   border-radius: 1rem;
   min-width: 350px;
   max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  /* Propiedades para centrado absoluto */
-  position: absolute; /* Usamos absolute dentro de fixed para que se posicione respecto al overlay */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
+  transform: none;
 }
 
 .modal-content h2,
 .modal-content h3 {
-  /* Añadido h3 para los títulos de formularios dentro de modales */
   text-align: center;
   margin-bottom: 1.5rem;
   border-bottom: none;
   width: auto;
+  font-size: 1.4rem;
 }
 
 .modal-content ul {
@@ -1058,24 +1035,19 @@ select {
   background-color: #c82333;
 }
 
-/* Este modal también debe centrarse. Lo unificamos con .modal-overlay */
-/* He cambiado la clase del diálogo de confirmación de perro de `confirm-dialog` a `modal-overlay confirm-dog-delete` para que use la misma base de centrado */
-.confirm-dog-delete .modal-content {
-  /* No necesitamos redefinir el centrado aquí, ya lo hereda de .modal-content */
-}
-
-/* Nuevo estilo para los botones del modal de confirmación de eliminación de perro */
 .confirm-dialog-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
-  margin-top: 1.5rem; /* Espacio superior para separarlo del texto */
+  margin-top: 1.5rem;
 }
 
 .confirm-dialog-actions button {
-  margin: 0; /* Elimina los márgenes predeterminados del botón */
+  margin: 0;
   flex-grow: 1;
   max-width: 150px;
+  min-width: 120px;
 }
 
 .confirm-dialog-actions .delete-btn {
@@ -1096,13 +1068,9 @@ select {
   background-color: #5a6268;
 }
 
-/* LISTA DE SOLICITUDES */
 .request-cards-list {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(280px, 1fr)
-  ); /* Más ancho para contenido de solicitud */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
   padding: 0;
   list-style: none;
@@ -1110,13 +1078,13 @@ select {
 }
 
 .request-card {
-  background-color: #e0f7fa; /* Un tono diferente para diferenciarlas */
+  background-color: #e0f7fa;
   border-radius: 15px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   padding: 1.2rem;
-  padding-bottom: 2.2rem; /* Aumentado aún más el padding inferior */
+  padding-bottom: 2.2rem;
   transition:
     transform 0.2s ease-in-out,
     box-shadow 0.2s ease-in-out;
@@ -1150,7 +1118,7 @@ select {
 }
 
 .request-info .request-date {
-  font-weight: normal; /* Para que la fecha no sea negrita por defecto */
+  font-weight: normal;
 }
 
 .request-info .request-status {
@@ -1158,23 +1126,22 @@ select {
   padding: 0.2rem 0.6rem;
   border-radius: 8px;
   font-size: 0.85rem;
-  display: inline-block; /* Para que el padding funcione bien */
+  display: inline-block;
   margin-left: 0.5rem;
 }
 
-/* Colores de estado */
 .request-status.pendiente {
-  background-color: #ffc107; /* Amarillo */
+  background-color: #ffc107;
   color: #333;
 }
 .request-status.aceptada {
-  background-color: #28a745; /* Verde */
+  background-color: #28a745;
   color: white;
 }
 .request-status.rechazada,
 .request-status.cancelada_por_owner,
 .request-status.cancelada_por_walker {
-  background-color: #dc3545; /* Rojo */
+  background-color: #dc3545;
   color: white;
 }
 
@@ -1186,27 +1153,28 @@ select {
 
 .request-dogs ul {
   padding-left: 1.2rem;
-  list-style: disc; /* Vuelven los puntos para las listas de perros */
+  list-style: disc;
   margin-top: 0.5rem;
 }
 
 .request-dogs ul li {
-  background-color: transparent; /* Anula el background de la tarjeta principal */
+  background-color: transparent;
   padding: 0.2rem 0;
   font-size: 0.9rem;
   box-shadow: none;
-  margin-left: 0; /* Asegura que la lista interna no tenga sangría adicional */
-  list-style-type: disc; /* Asegura que se vean los bullets */
-  align-items: baseline; /* Alinea el texto con el bullet */
+  margin-left: 0;
+  list-style-type: disc;
+  align-items: baseline;
 }
 
 .request-actions {
   display: flex;
-  justify-content: flex-end; /* Alinea los botones a la derecha */
+  justify-content: flex-end;
   gap: 0.5rem;
-  margin-top: auto; /* Empuja los botones al final de la tarjeta */
+  margin-top: auto;
   padding-top: 1rem;
   border-top: 1px solid #cce5ff;
+  flex-wrap: wrap;
 }
 
 .request-actions button {
@@ -1222,5 +1190,229 @@ select {
 }
 .request-actions .delete-btn:hover {
   background-color: #c82333;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    padding: 1rem;
+    align-items: flex-start;
+  }
+
+  .header .box-logo-img {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .header .logo h2 {
+    font-size: 1.5rem;
+  }
+
+  .header .logo p {
+    font-size: 0.8rem;
+    width: auto;
+    text-align: start;
+  }
+
+  .box-btns-navbar {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: center;
+  }
+
+  .box-btns-navbar button {
+    width: 90%;
+    max-width: 300px;
+    margin: 0.2rem 0;
+  }
+
+  .wellcome-box h1 {
+    margin: 1rem;
+    padding: 1rem;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .dogs-requests {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1.5rem;
+    overflow-y: auto;
+  }
+
+  .box-mydogs,
+  .box-requests {
+    min-width: auto;
+    padding: 1rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  h2 .btn-add-dog {
+    margin-top: 0.8rem;
+    width: 100%;
+    max-width: 250px;
+    align-self: center;
+  }
+
+  .dog-cards-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .dog-card {
+    padding: 0.8rem;
+  }
+
+  .dog-card-actions {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .dog-card-actions button {
+    width: 90%;
+    max-width: 200px;
+    align-self: center;
+  }
+
+  form {
+    padding: 1rem;
+    margin-top: 1rem;
+    max-width: none;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .form-actions button {
+    width: 90%;
+    max-width: 250px;
+    align-self: center;
+  }
+
+  .modal-content {
+    min-width: unset;
+    width: 95%;
+    padding: 1.5rem;
+    max-height: 95vh;
+  }
+
+  .modal-content h2,
+  .modal-content h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .confirm-dialog-actions {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .confirm-dialog-actions button {
+    width: 90%;
+    max-width: 250px;
+    align-self: center;
+  }
+
+  .request-cards-list {
+    grid-template-columns: 1fr;
+  }
+
+  .request-card {
+    padding: 1rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .request-actions {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .request-actions button {
+    width: 90%;
+    max-width: 200px;
+    align-self: center;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .header {
+    padding: 1rem 1.5rem;
+  }
+
+  .header .logo h2 {
+    font-size: 1.8rem;
+  }
+
+  .header .logo p {
+    font-size: 0.9rem;
+  }
+
+  .box-btns-navbar {
+    gap: 0.8rem;
+  }
+
+  .box-btns-navbar button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .wellcome-box h1 {
+    margin: 1rem 1.5rem;
+    padding: 1rem 1.5rem;
+    font-size: 1.4rem;
+  }
+
+  .dogs-requests {
+    flex-direction: column;
+    padding: 1rem 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .box-mydogs,
+  .box-requests {
+    min-width: auto;
+  }
+
+  .dog-cards-list {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .request-cards-list {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+
+  .modal-content {
+    min-width: 400px;
+    max-width: 80vw;
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .header {
+    padding: 1rem 3rem;
+  }
+
+  .wellcome-box h1 {
+    margin: 1rem 3rem;
+    padding: 1rem 3rem;
+    font-size: 1.8rem;
+  }
+
+  .dogs-requests {
+    padding: 1rem 3rem;
+  }
 }
 </style>
