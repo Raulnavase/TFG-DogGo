@@ -16,12 +16,12 @@ def create_ad():
     if not user:
         return jsonify({"msg": "Usuario no encontrado"}), 404
 
-    existing_ad = mongo.db.advertisements.find_one({"walker_id": user['_id']})
+    existing_ad = mongo.db.advertisements.find_one({"walker_id": str(user['_id'])})
     if existing_ad:
         return jsonify({"msg": "Ya tienes un anuncio creado"}), 400
 
     ad_data = {
-        "walker_id": user['_id'],
+        "walker_id": str(user['_id']),
         "biography": data.get('biography'),
         "maxDogs": data.get('maxDogs'),
         "locality": data.get('locality'),
@@ -30,8 +30,9 @@ def create_ad():
     result = mongo.db.advertisements.insert_one(ad_data)
     return jsonify({"msg": "Anuncio creado", "ad_id": str(result.inserted_id)}), 201
 
-
 @advertisements_bp.route('/all', methods=['GET'])
+@jwt_required()
+@role_required('owner')
 def get_all_ads():
     locality = request.args.get('locality')
     query = {"paused": False}
@@ -50,7 +51,6 @@ def get_all_ads():
         ads_list.append(ad)
     return jsonify(ads_list), 200
 
-
 @advertisements_bp.route('/walker', methods=['GET'])
 @jwt_required()
 @role_required('walker')
@@ -60,7 +60,7 @@ def get_walker_ad():
     if not user:
         return jsonify({"msg": "Usuario no encontrado"}), 404
 
-    ad = mongo.db.advertisements.find_one({"walker_id": user['_id']})
+    ad = mongo.db.advertisements.find_one({"walker_id": str(user['_id'])})
     if not ad:
         return jsonify({"msg": "No tienes un anuncio creado"}), 404
 
@@ -78,7 +78,7 @@ def update_ad():
     if not user:
         return jsonify({"msg": "Usuario no encontrado"}), 404
 
-    ad = mongo.db.advertisements.find_one({"walker_id": user['_id']})
+    ad = mongo.db.advertisements.find_one({"walker_id": str(user['_id'])})
     if not ad:
         return jsonify({"msg": "No tienes un anuncio creado"}), 404
 
@@ -88,7 +88,7 @@ def update_ad():
         "locality": data.get('locality', ad['locality'])
     }
     mongo.db.advertisements.update_one(
-        {"walker_id": user['_id']},
+        {"walker_id": str(user['_id'])},
         {"$set": update_data}
     )
     return jsonify({"msg": "Anuncio actualizado"}), 200
@@ -102,13 +102,13 @@ def toggle_pause_ad():
     if not user:
         return jsonify({"msg": "Usuario no encontrado"}), 404
 
-    ad = mongo.db.advertisements.find_one({"walker_id": user['_id']})
+    ad = mongo.db.advertisements.find_one({"walker_id": str(user['_id'])})
     if not ad:
         return jsonify({"msg": "No tienes un anuncio creado"}), 404
 
     new_status = not ad['paused']
     mongo.db.advertisements.update_one(
-        {"walker_id": user['_id']},
+        {"walker_id": str(user['_id'])},
         {"$set": {"paused": new_status}}
     )
     return jsonify({"msg": f"Anuncio {'pausado' if new_status else 'activado'}"}), 200
@@ -122,7 +122,7 @@ def delete_ad():
     if not user:
         return jsonify({"msg": "Usuario no encontrado"}), 404
 
-    result = mongo.db.advertisements.delete_one({"walker_id": user['_id']})
+    result = mongo.db.advertisements.delete_one({"walker_id": str(user['_id'])})
     if result.deleted_count == 0:
         return jsonify({"msg": "No tienes un anuncio creado"}), 404
 
