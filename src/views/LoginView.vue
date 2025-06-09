@@ -238,6 +238,7 @@ const login = async () => {
   text-align: right;
   font-weight: bold;
   margin-block: 0.5rem;
+  text-align: end;
   width: 20vw;
 }
 

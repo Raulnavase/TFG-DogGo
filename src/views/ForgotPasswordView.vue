@@ -1,6 +1,9 @@
 <template>
   <div class="container">
     <div class="box-form">
+      <router-link to="/login" class="back-link">
+        <i class="fa-solid fa-dog fa-flip-horizontal"></i> Volver
+      </router-link>
       <div class="mobile-logo">
         <img src="../assets/logo-DogGo-blanco.png" alt="Logo DogGo" />
         <div>
@@ -10,7 +13,7 @@
       </div>
 
       <div class="mobile-back-link">
-        <router-link to="/login" class="back-link">
+        <router-link to="/login" class="back-link-mobile">
           <i class="fa-solid fa-dog fa-flip-horizontal"></i> Volver
         </router-link>
       </div>
@@ -65,6 +68,21 @@ const submit = async () => {
   align-items: center;
 }
 
+.back-link {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  margin: 1.5rem 4rem;
+  text-decoration: none;
+  color: black;
+  font-size: 25px;
+}
+
+.back-link:hover {
+  letter-spacing: 2px;
+  transition: 0.4s;
+}
+
 .mobile-logo {
   display: flex;
   align-items: center;
@@ -102,7 +120,7 @@ const submit = async () => {
   margin: 1rem 0;
 }
 
-.back-link {
+.back-link-mobile {
   font-size: 16px;
   text-decoration: none;
   color: #003978;
@@ -163,6 +181,12 @@ const submit = async () => {
 @media (min-width: 769px) {
   .mobile-logo,
   .mobile-back-link {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .back-link {
     display: none;
   }
 }

@@ -232,6 +232,8 @@ const register = async () => {
   font-size: 25px;
   font-weight: bold;
   margin-block: 0.5rem;
+  text-align: end;
+  width: 20vw;
 }
 
 .img-register {
