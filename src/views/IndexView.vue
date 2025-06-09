@@ -263,4 +263,98 @@ const handleLogout = () => {
 .footer span:hover {
   opacity: 60%;
 }
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    height: 30%;
+    padding: 1rem;
+  }
+
+  .header .box-logo-img,
+  .box-btns-navbar {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .header .logo p {
+    font-size: 0.9rem;
+    width: 100%;
+    text-align: center;
+  }
+
+  .box-btns-navbar div {
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btns a,
+  .btns button {
+    width: 80%;
+    justify-content: center;
+    font-size: 0.95rem;
+  }
+
+  .box-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-position: center bottom;
+    background-size: cover;
+    padding: 1rem;
+    width: 100%;
+  }
+
+  .box-text {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(99, 99, 99, 0.175);
+    backdrop-filter: blur(6px);
+    border-radius: 15px;
+    text-align: center;
+    color: white;
+    gap: 1rem;
+  }
+
+  .box-text h2 {
+    font-size: 1.5rem;
+    height: auto;
+    width: 100%;
+    color: white;
+  }
+
+  .box-text p {
+    font-size: 1.1rem;
+    height: auto;
+    color: white;
+  }
+
+  .box-btn-empezar {
+    height: auto;
+  }
+
+  .box-btn-empezar button {
+    width: 60%;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .footer {
+    width: 100%;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-top: auto;
+  }
+}
 </style>
