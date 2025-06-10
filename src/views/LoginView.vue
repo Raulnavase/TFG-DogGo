@@ -45,7 +45,6 @@
           </router-link>
         </p>
         <button type="submit" class="btn-entrar">Entrar</button>
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
         <p>
           ¿No tienes cuenta?
           <router-link to="/register" class="register-link">Registrarse</router-link>
@@ -72,18 +71,19 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useToast } from 'vue-toastification'
 
 const email = ref('')
 const password = ref('')
-const errorMessage = ref('')
 const router = useRouter()
 const authStore = useAuthStore()
+const toast = useToast()
 
 const login = async () => {
-  errorMessage.value = ''
   try {
     const success = await authStore.loginUser({ email: email.value, password: password.value })
     if (success) {
+      toast.success('¡Sesión iniciada correctamente!')
       if (authStore.userRole === 'admin') {
         router.push({ name: 'admin-panel' })
       } else if (authStore.userRole === 'owner') {
@@ -93,9 +93,11 @@ const login = async () => {
       } else {
         router.push('/')
       }
+    } else {
+      toast.error(authStore.loginError || 'Error desconocido al iniciar sesión.')
     }
   } catch (error) {
-    errorMessage.value = authStore.loginError || 'Error desconocido al iniciar sesión.'
+    toast.error('Error al intentar iniciar sesión. Por favor, inténtalo de nuevo.')
     console.error('Error en el componente de login:', error)
   }
 }
@@ -251,13 +253,6 @@ const login = async () => {
 }
 .img-login img {
   height: 65vh;
-}
-
-.error-message {
-  color: #ff6b6b;
-  margin-top: 10px;
-  font-size: 0.9rem;
-  text-align: center;
 }
 
 .mobile-logo {

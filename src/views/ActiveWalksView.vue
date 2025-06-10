@@ -94,8 +94,6 @@
                   Cancelar
                 </button>
               </div>
-              <p v-if="requestError" class="error-message">{{ requestError }}</p>
-              <p v-if="requestSuccess" class="success-message">{{ requestSuccess }}</p>
             </form>
           </div>
         </div>
@@ -111,7 +109,9 @@ import { useAuthStore } from '@/stores/auth'
 import { adsGet } from '../../api/api'
 import provinces from '@/data/provinces.json'
 import { requestsPost } from '../../api/api'
+import { useToast } from 'vue-toastification'
 
+const toast = useToast()
 const capitalize = (str) => (str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : '')
 
 const comunidades = Object.keys(provinces)
@@ -127,8 +127,6 @@ const showRequestPanel = ref(false)
 const selectedAd = ref(null)
 const requestDate = ref('')
 const selectedDogs = ref([])
-const requestError = ref('')
-const requestSuccess = ref('')
 
 const fetchAds = async () => {
   loading.value = true
@@ -139,7 +137,7 @@ const fetchAds = async () => {
     const response = await adsGet(url)
     ads.value = response.data
   } catch (error) {
-    console.error('Error al cargar anuncios:', error.response?.data?.msg || error.message)
+    toast.error(error.response?.data?.msg || 'Error al cargar anuncios.')
   } finally {
     loading.value = false
   }
@@ -150,8 +148,6 @@ const openRequestPanel = (ad) => {
   showRequestPanel.value = true
   requestDate.value = ''
   selectedDogs.value = []
-  requestError.value = ''
-  requestSuccess.value = ''
 }
 
 const closeRequestPanel = () => {
@@ -159,10 +155,8 @@ const closeRequestPanel = () => {
 }
 
 const submitRequest = async () => {
-  requestError.value = ''
-  requestSuccess.value = ''
   if (!requestDate.value || !selectedDogs.value.length) {
-    requestError.value = 'Debes seleccionar un día y al menos un perro.'
+    toast.error('Debes seleccionar un día y al menos un perro.')
     return
   }
   try {
@@ -172,12 +166,12 @@ const submitRequest = async () => {
       date: requestDate.value,
       dogs: selectedDogs.value,
     })
-    requestSuccess.value = 'Solicitud enviada correctamente.'
+    toast.success('Solicitud enviada correctamente.')
     setTimeout(() => {
       showRequestPanel.value = false
     }, 1500)
   } catch (e) {
-    requestError.value = e?.response?.data?.msg || 'Error al enviar la solicitud.'
+    toast.error(e?.response?.data?.msg || 'Error al enviar la solicitud.')
   }
 }
 
@@ -193,6 +187,7 @@ onMounted(async () => {
   } else if (authStore.userRole !== 'owner') {
     router.push({ name: 'index' })
   } else {
+    await authStore.fetchDogs()
     await fetchAds()
   }
 })
@@ -208,6 +203,7 @@ const goToHome = () => {
 const logout = async () => {
   await authStore.logoutUser()
   router.push({ name: 'login' })
+  toast.info('Sesión cerrada correctamente.')
 }
 </script>
 

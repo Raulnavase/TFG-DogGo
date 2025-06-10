@@ -73,8 +73,6 @@
                 <button type="submit">Guardar</button>
                 <button type="button" @click="cancelEditPersonal">Cancelar</button>
               </div>
-              <p v-if="personalError" class="error-message">{{ personalError }}</p>
-              <p v-if="personalSuccess" class="success-message">{{ personalSuccess }}</p>
             </form>
           </template>
           <div v-if="showChangePassword">
@@ -97,7 +95,12 @@
                   v-model="newPassword"
                   type="password"
                   required
+                  @focus="showPasswordHint = true"
+                  @blur="showPasswordHint = false"
                 />
+                <p v-if="showPasswordHint" class="password-hint">
+                  La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.
+                </p>
               </div>
               <div>
                 <label>Repite nueva contraseña:</label>
@@ -113,8 +116,6 @@
                 <button type="submit">Cambiar contraseña</button>
                 <button type="button" @click="showChangePassword = false">Cancelar</button>
               </div>
-              <p v-if="passwordError" class="error-message">{{ passwordError }}</p>
-              <p v-if="passwordSuccess" class="success-message">{{ passwordSuccess }}</p>
             </form>
           </div>
         </div>
@@ -215,10 +216,6 @@
           <div class="form-actions">
             <button type="submit">Agregar Perro</button>
           </div>
-          <p v-if="authStore.addDogError" class="error-message">{{ authStore.addDogError }}</p>
-          <p v-if="authStore.addDogSuccess" class="success-message">
-            {{ authStore.addDogSuccess }}
-          </p>
         </form>
 
         <div v-if="authStore.showEditDogForm" class="modal-overlay">
@@ -275,12 +272,6 @@
                 <button type="submit">Guardar Cambios</button>
                 <button type="button" @click="authStore.toggleEditDogForm(null)">Cancelar</button>
               </div>
-              <p v-if="authStore.editDogError" class="error-message">
-                {{ authStore.editDogError }}
-              </p>
-              <p v-if="authStore.editDogSuccess" class="success-message">
-                {{ authStore.editDogSuccess }}
-              </p>
             </form>
           </div>
         </div>
@@ -289,7 +280,7 @@
           <div class="modal-content">
             <p>¿Estás seguro de eliminar a {{ authStore.dogToDelete?.name }}?</p>
             <div class="confirm-dialog-actions">
-              <button @click="authStore.deleteDog" class="delete-btn">Sí, eliminar</button>
+              <button @click="deleteDogConfirmed" class="delete-btn">Sí, eliminar</button>
               <button @click="authStore.cancelDelete">Cancelar</button>
             </div>
           </div>
@@ -364,6 +355,40 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useDogStore } from '@/stores/dog'
 import { requestsGet, requestsPatch, requestsDelete } from '../../api/api'
+import { useToast } from 'vue-toastification'
+
+const toast = useToast()
+const router = useRouter()
+const authStore = useAuthStore()
+const dogStore = useDogStore()
+
+const showPersonalInfo = ref(false)
+const editPersonal = ref(false)
+const showChangePassword = ref(false)
+const confirmDelete = ref(false)
+
+const editName = ref(authStore.user?.name || '')
+const editLastName = ref(authStore.user?.last_name || '')
+const editEmail = ref(authStore.user?.email || '')
+
+const oldPassword = ref('')
+const newPassword = ref('')
+const repeatNewPassword = ref('')
+const showPasswordHint = ref(false)
+
+const breeds = ref([])
+const showCustomBreedAdd = ref(false)
+const showCustomBreedEdit = ref(false)
+const customBreedAdd = ref('')
+const customBreedEdit = ref('')
+const selectedBreedAdd = ref('')
+const selectedBreedEdit = ref('')
+
+const ownerRequests = ref([])
+const ownerRequestsLoading = ref(false)
+const ownerRequestsError = ref('')
+
+const capitalize = (str) => (str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : '')
 
 const statusText = (status) => {
   switch (status) {
@@ -382,39 +407,6 @@ const statusText = (status) => {
   }
 }
 
-const router = useRouter()
-const authStore = useAuthStore()
-const dogStore = useDogStore()
-
-const showPersonalInfo = ref(false)
-const editPersonal = ref(false)
-const showChangePassword = ref(false)
-const confirmDelete = ref(false)
-
-const editName = ref(authStore.user?.name || '')
-const editLastName = ref(authStore.user?.last_name || '')
-const editEmail = ref(authStore.user?.email || '')
-const personalError = ref('')
-const personalSuccess = ref('')
-
-const passwordError = ref('')
-const passwordSuccess = ref('')
-const oldPassword = ref('')
-const newPassword = ref('')
-const repeatNewPassword = ref('')
-
-const breeds = ref([])
-const showCustomBreedAdd = ref(false)
-const showCustomBreedEdit = ref(false)
-const customBreedAdd = ref('')
-const customBreedEdit = ref('')
-const selectedBreedAdd = ref('')
-const selectedBreedEdit = ref('')
-
-const ownerRequests = ref([])
-const ownerRequestsLoading = ref(false)
-const ownerRequestsError = ref('')
-
 watch(
   () => showPersonalInfo.value,
   (val) => {
@@ -422,10 +414,6 @@ watch(
       editName.value = authStore.user.name
       editLastName.value = authStore.user.last_name
       editEmail.value = authStore.user.email
-      personalError.value = ''
-      personalSuccess.value = ''
-      passwordError.value = ''
-      passwordSuccess.value = ''
       editPersonal.value = false
       showChangePassword.value = false
     }
@@ -462,6 +450,7 @@ const fetchOwnerRequests = async () => {
     ownerRequests.value = res.data
   } catch (e) {
     ownerRequestsError.value = e?.response?.data?.msg || 'Error al cargar solicitudes'
+    toast.error(ownerRequestsError.value)
   } finally {
     ownerRequestsLoading.value = false
   }
@@ -470,57 +459,52 @@ const fetchOwnerRequests = async () => {
 const cancelRequest = async (id) => {
   try {
     await requestsPatch(`/${id}/cancel`)
+    toast.success('Solicitud cancelada correctamente.')
     fetchOwnerRequests()
   } catch (e) {
-    console.error('Error al cancelar la solicitud:', e)
-    alert(e?.response?.data?.msg || 'Error al cancelar la solicitud')
+    toast.error(e?.response?.data?.msg || 'Error al cancelar la solicitud.')
   }
 }
 
 const deleteRequest = async (id) => {
   try {
     await requestsDelete(`/${id}`)
+    toast.success('Solicitud eliminada correctamente.')
     fetchOwnerRequests()
   } catch (e) {
-    console.error('Error al eliminar la solicitud:', e)
-    alert(e?.response?.data?.msg || 'Error al eliminar la solicitud')
+    toast.error(e?.response?.data?.msg || 'Error al eliminar la solicitud.')
   }
 }
 
 const savePersonalData = async () => {
-  personalError.value = ''
-  personalSuccess.value = ''
   try {
     await authStore.updatePersonalData({
       name: editName.value,
       last_name: editLastName.value,
       email: editEmail.value,
     })
-    personalSuccess.value = 'Datos actualizados correctamente'
+    toast.success('Datos personales actualizados correctamente.')
     editPersonal.value = false
   } catch (e) {
-    personalError.value = e?.response?.data?.msg || 'Error al actualizar los datos'
+    toast.error(e?.response?.data?.msg || 'Error al actualizar los datos personales.')
   }
 }
 
 const cancelEditPersonal = () => {
   editPersonal.value = false
-  personalError.value = ''
-  personalSuccess.value = ''
   editName.value = authStore.user?.name || ''
   editLastName.value = authStore.user?.last_name || ''
   editEmail.value = authStore.user?.email || ''
 }
 
 const changePassword = async () => {
-  passwordError.value = ''
-  passwordSuccess.value = ''
   if (newPassword.value !== repeatNewPassword.value) {
-    passwordError.value = 'Las contraseñas nuevas no coinciden'
+    toast.error('Las contraseñas nuevas no coinciden.')
     return
   }
-  if (newPassword.value.length < 6) {
-    passwordError.value = 'La nueva contraseña debe tener al menos 6 caracteres.'
+  const passwordPattern = /^(?=.*[A-Z])(?=.*\d)\S{8,}$/
+  if (!passwordPattern.test(newPassword.value)) {
+    toast.error('La nueva contraseña debe tener al menos 8 caracteres, una mayúscula y un número.')
     return
   }
   try {
@@ -528,13 +512,13 @@ const changePassword = async () => {
       oldPassword: oldPassword.value,
       newPassword: newPassword.value,
     })
-    passwordSuccess.value = 'Contraseña cambiada correctamente'
+    toast.success('Contraseña cambiada correctamente.')
     oldPassword.value = ''
     newPassword.value = ''
     repeatNewPassword.value = ''
     showChangePassword.value = false
   } catch (e) {
-    passwordError.value = e?.response?.data?.msg || 'Error al cambiar la contraseña'
+    toast.error(e?.response?.data?.msg || 'Error al cambiar la contraseña.')
   }
 }
 
@@ -549,14 +533,16 @@ const goToActiveWalks = () => {
 const logout = async () => {
   await authStore.logoutUser()
   router.push({ name: 'index' })
+  toast.info('Sesión cerrada correctamente.')
 }
 
 const deleteAccount = async () => {
   try {
     await authStore.deleteUserAccount()
+    toast.success('Cuenta eliminada correctamente.')
     router.push({ name: 'index' })
   } catch (e) {
-    alert(e?.response?.data?.msg || 'Error al eliminar la cuenta')
+    toast.error(e?.response?.data?.msg || 'Error al eliminar la cuenta.')
   } finally {
     confirmDelete.value = false
   }
@@ -572,7 +558,7 @@ const fetchBreeds = async () => {
       )
       dogStore.setBreeds(breedList)
     } catch (error) {
-      console.error('Error al cargar las razas:', error)
+      toast.error('Error al cargar las razas de perros.')
     }
   }
   breeds.value = dogStore.breeds
@@ -614,22 +600,22 @@ const validateAndAddDog = async () => {
   }
 
   if (!authStore.newDog.name || !authStore.newDog.age || !authStore.newDog.breed) {
-    authStore.addDogError = 'Todos los campos son obligatorios, incluida la raza.'
-    authStore.addDogSuccess = ''
-    return
+    toast.error('Todos los campos son obligatorios para agregar un perro.')
   }
 
   if (authStore.newDog.age <= 0) {
-    authStore.addDogError = 'La edad debe ser un número positivo.'
-    authStore.addDogSuccess = ''
+    toast.error('La edad debe ser un número positivo.')
     return
   }
 
-  await authStore.addDog()
-  if (authStore.addDogSuccess) {
+  const success = await authStore.addDog()
+  if (success) {
+    toast.success('Perro agregado correctamente.')
     selectedBreedAdd.value = ''
     customBreedAdd.value = ''
     showCustomBreedAdd.value = false
+  } else {
+    toast.error('Error al agregar el perro.')
   }
 }
 
@@ -641,26 +627,35 @@ const validateAndUpdateDog = async () => {
   }
 
   if (!authStore.editDog.name || !authStore.editDog.age || !authStore.editDog.breed) {
-    authStore.editDogError = 'Todos los campos son obligatorios, incluida la raza.'
-    authStore.editDogSuccess = ''
+    toast.error('Todos los campos son obligatorios para editar el perro.')
     return
   }
 
   if (authStore.editDog.age <= 0) {
-    authStore.editDogError = 'La edad debe ser un número positivo.'
-    authStore.editDogSuccess = ''
+    toast.error('La edad debe ser un número positivo.')
     return
   }
 
-  await authStore.updateDog()
-  if (authStore.editDogSuccess) {
+  const success = await authStore.updateDog()
+  if (success) {
+    toast.success('Perro actualizado correctamente.')
     selectedBreedEdit.value = ''
     customBreedEdit.value = ''
     showCustomBreedEdit.value = false
+  } else {
+    toast.error('Error al actualizar el perro.')
   }
 }
 
-const capitalize = (str) => (str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : '')
+const deleteDogConfirmed = async () => {
+  const success = await authStore.deleteDog()
+  if (success) {
+    toast.success('Perro eliminado correctamente.')
+  } else {
+    toast.error('Error al eliminar el perro.')
+  }
+  authStore.cancelDelete()
+}
 
 onMounted(async () => {
   authStore.initializeAuth()
@@ -675,6 +670,14 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.password-hint {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
 .wrapper {
   height: 100vh;
   width: 100vw;

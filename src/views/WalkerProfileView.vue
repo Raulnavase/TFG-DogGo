@@ -74,8 +74,6 @@
                 <button type="submit">Guardar</button>
                 <button type="button" @click="cancelEditPersonal">Cancelar</button>
               </div>
-              <p v-if="personalError" class="error-message">{{ personalError }}</p>
-              <p v-if="personalSuccess" class="success-message">{{ personalSuccess }}</p>
             </form>
           </template>
           <div v-if="showChangePassword">
@@ -98,7 +96,12 @@
                   v-model="newPassword"
                   type="password"
                   required
+                  @focus="showPasswordHint = true"
+                  @blur="showPasswordHint = false"
                 />
+                <p v-if="showPasswordHint" class="password-hint">
+                  La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.
+                </p>
               </div>
               <div>
                 <label>Repite nueva contraseña:</label>
@@ -114,8 +117,6 @@
                 <button type="submit">Cambiar contraseña</button>
                 <button type="button" @click="showChangePassword = false">Cancelar</button>
               </div>
-              <p v-if="passwordError" class="error-message">{{ passwordError }}</p>
-              <p v-if="passwordSuccess" class="success-message">{{ passwordSuccess }}</p>
             </form>
           </div>
         </div>
@@ -161,7 +162,6 @@
             </div>
             <div v-else>
               <p>No tienes un anuncio creado.</p>
-              <p v-if="walkerAdStore.error" class="error-message">{{ walkerAdStore.error }}</p>
               <button @click="toggleAddAdForm">Crear Anuncio</button>
             </div>
           </div>
@@ -203,8 +203,6 @@
             <button type="submit">Crear Anuncio</button>
             <button type="button" @click="toggleAddAdForm">Cancelar</button>
           </div>
-          <p v-if="walkerAdStore.error" class="error-message">{{ walkerAdStore.error }}</p>
-          <p v-if="walkerAdStore.success" class="success-message">{{ walkerAdStore.success }}</p>
         </form>
 
         <div v-if="showEditAdForm" class="modal-overlay">
@@ -245,10 +243,6 @@
                 <button type="submit">Guardar Cambios</button>
                 <button type="button" @click="toggleEditAdForm(null)">Cancelar</button>
               </div>
-              <p v-if="walkerAdStore.error" class="error-message">{{ walkerAdStore.error }}</p>
-              <p v-if="walkerAdStore.success" class="success-message">
-                {{ walkerAdStore.success }}
-              </p>
             </form>
           </div>
         </div>
@@ -339,7 +333,9 @@ import { useAuthStore } from '@/stores/auth'
 import { useWalkerAdStore } from '@/stores/walkerAd'
 import { requestsGet, requestsPatch, requestsDelete } from '../../api/api'
 import provinces from '@/data/provinces.json'
+import { useToast } from 'vue-toastification'
 
+const toast = useToast()
 const statusText = (status) => {
   switch (status) {
     case 'pendiente':
@@ -374,14 +370,11 @@ const confirmDelete = ref(false)
 const editName = ref(authStore.user?.name || '')
 const editLastName = ref(authStore.user?.last_name || '')
 const editEmail = ref(authStore.user?.email || '')
-const personalError = ref('')
-const personalSuccess = ref('')
 
-const passwordError = ref('')
-const passwordSuccess = ref('')
 const oldPassword = ref('')
 const newPassword = ref('')
 const repeatNewPassword = ref('')
+const showPasswordHint = ref(false)
 
 const showAddAdForm = ref(false)
 const showEditAdForm = ref(false)
@@ -400,10 +393,6 @@ watch(
       editName.value = authStore.user.name
       editLastName.value = authStore.user.last_name
       editEmail.value = authStore.user.email
-      personalError.value = ''
-      personalSuccess.value = ''
-      passwordError.value = ''
-      passwordSuccess.value = ''
       editPersonal.value = false
       showChangePassword.value = false
     }
@@ -418,6 +407,7 @@ const fetchWalkerRequests = async () => {
     walkerRequests.value = res.data
   } catch (e) {
     walkerRequestsError.value = e?.response?.data?.msg || 'Error al cargar solicitudes'
+    toast.error(walkerRequestsError.value)
   } finally {
     walkerRequestsLoading.value = false
   }
@@ -426,77 +416,72 @@ const fetchWalkerRequests = async () => {
 const acceptRequest = async (id) => {
   try {
     await requestsPatch(`/${id}/accept`)
+    toast.success('Solicitud aceptada correctamente.')
     fetchWalkerRequests()
   } catch (e) {
-    console.error('Error al aceptar la solicitud:', e)
-    alert(e?.response?.data?.msg || 'Error al aceptar la solicitud')
+    toast.error(e?.response?.data?.msg || 'Error al aceptar la solicitud.')
   }
 }
 
 const rejectRequest = async (id) => {
   try {
     await requestsPatch(`/${id}/reject`)
+    toast.success('Solicitud rechazada correctamente.')
     fetchWalkerRequests()
   } catch (e) {
-    console.error('Error al rechazar la solicitud:', e)
-    alert(e?.response?.data?.msg || 'Error al rechazar la solicitud')
+    toast.error(e?.response?.data?.msg || 'Error al rechazar la solicitud.')
   }
 }
 
 const cancelRequest = async (id) => {
   try {
     await requestsPatch(`/${id}/cancel`)
+    toast.success('Solicitud cancelada correctamente.')
     fetchWalkerRequests()
   } catch (e) {
-    console.error('Error al cancelar la solicitud:', e)
-    alert(e?.response?.data?.msg || 'Error al cancelar la solicitud')
+    toast.error(e?.response?.data?.msg || 'Error al cancelar la solicitud.')
   }
 }
 
 const deleteRequest = async (id) => {
   try {
     await requestsDelete(`/${id}`)
+    toast.success('Solicitud eliminada correctamente.')
     fetchWalkerRequests()
   } catch (e) {
-    console.error('Error al eliminar la solicitud:', e)
-    alert(e?.response?.data?.msg || 'Error al eliminar la solicitud')
+    toast.error(e?.response?.data?.msg || 'Error al eliminar la solicitud.')
   }
 }
 
 const savePersonalData = async () => {
-  personalError.value = ''
-  personalSuccess.value = ''
   try {
     await authStore.updatePersonalData({
       name: editName.value,
       last_name: editLastName.value,
       email: editEmail.value,
     })
-    personalSuccess.value = 'Datos actualizados correctamente'
+    toast.success('Datos actualizados correctamente.')
     editPersonal.value = false
   } catch (e) {
-    personalError.value = e?.response?.data?.msg || 'Error al actualizar los datos'
+    toast.error(e?.response?.data?.msg || 'Error al actualizar los datos.')
   }
 }
 
 const cancelEditPersonal = () => {
   editPersonal.value = false
-  personalError.value = ''
-  personalSuccess.value = ''
   editName.value = authStore.user?.name || ''
   editLastName.value = authStore.user?.last_name || ''
   editEmail.value = authStore.user?.email || ''
 }
 
 const changePassword = async () => {
-  passwordError.value = ''
-  passwordSuccess.value = ''
   if (newPassword.value !== repeatNewPassword.value) {
-    passwordError.value = 'Las contraseñas nuevas no coinciden'
+    toast.error('Las contraseñas nuevas no coinciden.')
     return
   }
-  if (newPassword.value.length < 6) {
-    passwordError.value = 'La nueva contraseña debe tener al menos 6 caracteres.'
+  const passwordPattern = /^(?=.*[A-Z])(?=.*\d)\S{8,}$/
+  if (!passwordPattern.test(newPassword.value)) {
+    toast.error('La nueva contraseña debe tener al menos 8 caracteres, una mayúscula y un número.')
     return
   }
   try {
@@ -504,13 +489,13 @@ const changePassword = async () => {
       oldPassword: oldPassword.value,
       newPassword: newPassword.value,
     })
-    passwordSuccess.value = 'Contraseña cambiada correctamente'
+    toast.success('Contraseña cambiada correctamente.')
     oldPassword.value = ''
     newPassword.value = ''
     repeatNewPassword.value = ''
     showChangePassword.value = false
   } catch (e) {
-    passwordError.value = e?.response?.data?.msg || 'Error al cambiar la contraseña'
+    toast.error(e?.response?.data?.msg || 'Error al cambiar la contraseña.')
   }
 }
 
@@ -521,14 +506,16 @@ const goToHome = () => {
 const logout = async () => {
   await authStore.logoutUser()
   router.push({ name: 'index' })
+  toast.info('Sesión cerrada correctamente.')
 }
 
 const deleteAccount = async () => {
   try {
     await authStore.deleteUserAccount()
+    toast.success('Cuenta eliminada correctamente.')
     router.push({ name: 'index' })
   } catch (e) {
-    alert(e?.response?.data?.msg || 'Error al eliminar la cuenta')
+    toast.error(e?.response?.data?.msg || 'Error al eliminar la cuenta.')
   } finally {
     confirmDelete.value = false
   }
@@ -538,8 +525,6 @@ const toggleAddAdForm = () => {
   showAddAdForm.value = !showAddAdForm.value
   newAd.value = { biography: '', maxDogs: '', locality: '' }
   showEditAdForm.value = false
-  walkerAdStore.error = null
-  walkerAdStore.success = null
 }
 
 const toggleEditAdForm = (ad) => {
@@ -553,42 +538,42 @@ const toggleEditAdForm = (ad) => {
     showAddAdForm.value = false
   } else {
     editAd.value = { biography: '', maxDogs: '', locality: '' }
-    walkerAdStore.error = null
-    walkerAdStore.success = null
   }
 }
 
 const validateAndCreateAd = async () => {
   if (!newAd.value.biography || !newAd.value.maxDogs || !newAd.value.locality) {
-    walkerAdStore.error = 'Todos los campos son obligatorios'
-    walkerAdStore.success = null
+    toast.error('Todos los campos son obligatorios para crear un anuncio.')
     return
   }
   if (newAd.value.maxDogs < 1) {
-    walkerAdStore.error = 'El número máximo de perros debe ser al menos 1'
-    walkerAdStore.success = null
+    toast.error('El número máximo de perros debe ser al menos 1.')
     return
   }
-  await walkerAdStore.createWalkerAd(newAd.value)
-  if (!walkerAdStore.error) {
+  const success = await walkerAdStore.createWalkerAd(newAd.value)
+  if (success) {
+    toast.success('Anuncio creado correctamente.')
     showAddAdForm.value = false
+  } else {
+    toast.error(walkerAdStore.error || 'Error al crear el anuncio.')
   }
 }
 
 const validateAndUpdateAd = async () => {
   if (!editAd.value.biography || !editAd.value.maxDogs || !editAd.value.locality) {
-    walkerAdStore.error = 'Todos los campos son obligatorios'
-    walkerAdStore.success = null
+    toast.error('Todos los campos son obligatorios para editar el anuncio.')
     return
   }
   if (editAd.value.maxDogs < 1) {
-    walkerAdStore.error = 'El número máximo de perros debe ser al menos 1'
-    walkerAdStore.success = null
+    toast.error('El número máximo de perros debe ser al menos 1.')
     return
   }
-  await walkerAdStore.updateWalkerAd(editAd.value)
-  if (!walkerAdStore.error) {
+  const success = await walkerAdStore.updateWalkerAd(editAd.value)
+  if (success) {
+    toast.success('Anuncio actualizado correctamente.')
     showEditAdForm.value = false
+  } else {
+    toast.error(walkerAdStore.error || 'Error al actualizar el anuncio.')
   }
 }
 
@@ -600,15 +585,28 @@ const showDeleteConfirmation = () => {
 
 const handlePauseToggle = async () => {
   showEditAdForm.value = false
-  await walkerAdStore.togglePauseWalkerAd()
+  const success = await walkerAdStore.togglePauseWalkerAd()
+  if (success) {
+    toast.success(
+      walkerAdStore.walkerAd.paused
+        ? 'Anuncio pausado correctamente.'
+        : 'Anuncio activado correctamente.',
+    )
+  } else {
+    toast.error(walkerAdStore.error || 'Error al cambiar el estado del anuncio.')
+  }
 }
 
 const deleteAd = async () => {
   try {
-    await walkerAdStore.deleteWalkerAd()
+    const success = await walkerAdStore.deleteWalkerAd()
+    if (success) {
+      toast.success('Anuncio eliminado correctamente.')
+    } else {
+      toast.error(walkerAdStore.error || 'Error al eliminar el anuncio.')
+    }
   } catch (e) {
-    console.error('Error al eliminar el anuncio:', e)
-    alert(e?.response?.data?.msg || 'Error al eliminar el anuncio')
+    toast.error(e?.response?.data?.msg || 'Error al eliminar el anuncio.')
   } finally {
     showDeleteConfirm.value = false
   }
@@ -632,6 +630,14 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.password-hint {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
 .wrapper {
   height: 100vh;
   width: 100vw;

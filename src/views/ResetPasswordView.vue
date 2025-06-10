@@ -10,7 +10,12 @@
         placeholder="Nueva contraseña"
         class="input"
         type="password"
+        @focus="showPasswordHint = true"
+        @blur="showPasswordHint = false"
       />
+      <p v-if="showPasswordHint" class="password-hint">
+        La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.
+      </p>
       <input
         pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
         oninput="this.value = this.value.trim()"
@@ -21,7 +26,6 @@
         type="password"
       />
       <button class="btn" type="submit">Restablecer</button>
-      <p v-if="msg" :class="msg.includes('éxito') ? 'success-msg' : 'error-msg'">{{ msg }}</p>
     </form>
   </div>
 </template>
@@ -30,30 +34,30 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
-
+import { useToast } from 'vue-toastification'
 const password = ref('')
 const repPassword = ref('')
-const msg = ref('')
 const route = useRoute()
 const router = useRouter()
+const toast = useToast()
 const token = ref('')
+const showPasswordHint = ref(false)
 
 onMounted(() => {
   token.value = route.query.token
   if (!token.value) {
-    msg.value = 'Token de restablecimiento no encontrado en la URL.'
+    toast.error('Token de restablecimiento no encontrado en la URL.')
   }
 })
 
 const submit = async () => {
-  msg.value = ''
   if (password.value !== repPassword.value) {
-    msg.value = 'Las contraseñas no coinciden.'
+    toast.error('Las contraseñas no coinciden.')
     return
   }
 
   if (!token.value) {
-    msg.value = 'No se puede restablecer la contraseña sin un token válido.'
+    toast.error('No se puede restablecer la contraseña sin un token válido.')
     return
   }
 
@@ -64,10 +68,11 @@ const submit = async () => {
         password: password.value,
       },
     )
-    msg.value = response.data.msg
+    toast.success(response.data.msg)
     setTimeout(() => router.push({ name: 'login' }), 2000)
   } catch (e) {
-    msg.value = e.response?.data?.msg || 'Error al restablecer la contraseña. Inténtalo de nuevo.'
+    toast.error(e.response?.data?.msg || 'Error al restablecer la contraseña.')
+    console.error('Error en el restablecimiento de contraseña:', e)
   }
 }
 </script>
@@ -136,9 +141,12 @@ const submit = async () => {
   color: #28a745;
 }
 
-.error-msg {
-  font-size: 14px;
+.password-hint {
+  font-size: 0.85rem;
+  color: #003978;
+  margin-top: -5px;
+  margin-bottom: 5px;
+  width: 60%;
   text-align: center;
-  color: #dc3545;
 }
 </style>

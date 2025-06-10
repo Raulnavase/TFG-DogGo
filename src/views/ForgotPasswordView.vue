@@ -28,7 +28,6 @@
           type="email"
         />
         <button class="btn-registrarse" type="submit">Enviar enlace</button>
-        <p v-if="msg" class="info-msg">{{ msg }}</p>
       </form>
     </div>
   </div>
@@ -37,19 +36,20 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
+import { useToast } from 'vue-toastification'
 
 const email = ref('')
-const msg = ref('')
+const toast = useToast()
 
 const submit = async () => {
-  msg.value = ''
   try {
     const response = await axios.post('https://tfg-doggo.onrender.com/auth/forgot-password', {
       email: email.value,
     })
-    msg.value = response.data.msg
+    toast.success(response.data.msg)
   } catch (e) {
-    msg.value = e.response?.data?.msg || 'Error al enviar el correo.'
+    toast.error(e.response?.data?.msg || 'Error al enviar el correo.')
+    console.error('Error en forgot password:', e)
   }
 }
 </script>

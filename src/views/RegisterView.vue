@@ -49,15 +49,20 @@
           />
           <input
             pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
-            oninput="this.value = this.value.trim()"
+            oninput="this.value = this.value.value.trim()"
             class="input"
             v-model="password"
             required
             type="password"
             placeholder="Contraseña"
+            @focus="showPasswordHint = true"
+            @blur="showPasswordHint = false"
           />
+          <p v-if="showPasswordHint" class="password-hint">
+            La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.
+          </p>
           <input
-            pattern="^\S.*\S$"
+            pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
             oninput="this.value = this.value.trim()"
             class="input"
             v-model="repPassword"
@@ -77,26 +82,24 @@
         <p class="legend-role">Selecciona tu rol</p>
         <div class="box-role">
           <input
-            pattern="^\S.*\S$"
-            oninput="this.value = this.value.trim()"
             v-model="role"
             type="radio"
             name="role"
             value="owner"
             id="owner"
             class="hidden-radio"
+            required
           />
           <label for="owner" class="role-button">Dueño</label>
 
           <input
-            pattern="^\S.*\S$"
-            oninput="this.value = this.value.trim()"
             v-model="role"
             type="radio"
             name="role"
             value="walker"
             id="walker"
             class="hidden-radio"
+            required
           />
           <label for="walker" class="role-button">Paseador</label>
         </div>
@@ -107,8 +110,6 @@
             >términos y condiciones</router-link
           >
         </p>
-
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       </form>
     </div>
 
@@ -136,9 +137,11 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useToast } from 'vue-toastification' // Importa useToast
 
 const authStore = useAuthStore()
 const router = useRouter()
+const toast = useToast() // Inicializa el toast
 
 const name = ref('')
 const lastName = ref('')
@@ -146,16 +149,16 @@ const email = ref('')
 const password = ref('')
 const repPassword = ref('')
 const role = ref('')
-const errorMessage = ref('')
+const showPasswordHint = ref(false) // Nuevo estado para el aviso de contraseña
 
 const register = async () => {
-  errorMessage.value = ''
+  // errorMessage.value = ''; // Ya no lo necesitamos
 
   if (!role.value) {
-    errorMessage.value = 'Debes seleccionar un rol (Paseador o Dueño).'
+    toast.error('Debes seleccionar un rol (Paseador o Dueño).')
     return
   } else if (password.value !== repPassword.value) {
-    errorMessage.value = 'Las contraseñas no coinciden.'
+    toast.error('Las contraseñas no coinciden.')
     return
   }
 
@@ -168,24 +171,39 @@ const register = async () => {
   }
 
   try {
-    await authStore.registerUser(userData)
+    const registrationResponse = await authStore.registerUser(userData)
 
-    if (authStore.registrationSuccess) {
-      if (authStore.userRole === 'admin') {
-        router.push({ name: 'admin-panel' })
-      } else if (authStore.userRole === 'owner') {
-        router.push({ name: 'owner-profile' })
-      } else if (authStore.userRole === 'walker') {
-        router.push({ name: 'walker-profile' })
+    if (registrationResponse.success) {
+      toast.success('¡Registro exitoso! Iniciando sesión...')
+
+      const loginSuccess = await authStore.loginUser({
+        email: email.value,
+        password: password.value,
+      })
+
+      if (loginSuccess) {
+        toast.success('Sesión iniciada correctamente.')
+        if (authStore.userRole === 'admin') {
+          router.push({ name: 'admin-panel' })
+        } else if (authStore.userRole === 'owner') {
+          router.push({ name: 'owner-profile' })
+        } else if (authStore.userRole === 'walker') {
+          router.push({ name: 'walker-profile' })
+        } else {
+          router.push('/')
+        }
       } else {
-        router.push('/')
+        toast.error(
+          authStore.loginError ||
+            'Registro exitoso, pero falló el inicio de sesión automático. Por favor, inicia sesión manualmente.',
+        )
+        router.push({ name: 'login' })
       }
     } else {
-      errorMessage.value = authStore.registrationError || 'Error desconocido al registrarse.'
+      toast.error(registrationResponse.error || 'Error desconocido al registrarse.')
     }
   } catch (error) {
-    errorMessage.value =
-      authStore.registrationError || 'Error al registrarse. Inténtalo de nuevo más tarde.'
+    toast.error('Error al registrarse. Inténtalo de nuevo más tarde.')
     console.error('Error en el registro desde el componente:', error)
   }
 }
@@ -425,10 +443,12 @@ const register = async () => {
   text-decoration: underline;
 }
 
-.error-message {
-  color: #ff6b6b;
-  margin-top: 10px;
-  font-size: 0.9rem;
+.password-hint {
+  font-size: 0.85rem;
+  color: #003978;
+  margin-top: -5px;
+  margin-bottom: 5px;
+  width: 60%;
   text-align: center;
 }
 
@@ -517,6 +537,12 @@ const register = async () => {
     width: 100%;
     height: 40px;
     font-size: 16px;
+  }
+
+  .form .inputs input::placeholder {
+    color: #003978;
+    font-size: 15px;
+    letter-spacing: 1px;
   }
 
   .btn-registrarse {
