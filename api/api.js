@@ -42,7 +42,6 @@ const adminApi = axios.create({
 const addTokenInterceptor = (instance) => {
   instance.interceptors.request.use((config) => {
     const token = localStorage.getItem('accessToken')
-    console.log(`Token enviado en ${config.baseURL}${config.url}:`, token)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
