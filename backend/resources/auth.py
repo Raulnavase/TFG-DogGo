@@ -1,8 +1,8 @@
 from flask import request, jsonify, Blueprint
-from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, get_jwt_identity, verify_jwt_in_request
+from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, get_jwt_identity
 from extensions import mongo, bcrypt
 from bson import ObjectId
-from utils.email_utils import send_welcome_email
+from utils.email_utils import send_welcome_email, send_reset_email
 import secrets
 from datetime import datetime, timedelta
 
@@ -95,7 +95,6 @@ def get_current_user():
         }), 200
     return jsonify({"msg": "Usuario no encontrado"}), 404
 
-
 @auth_bp.route('/user', methods=['DELETE'])
 @jwt_required()
 def delete_user():
@@ -163,20 +162,16 @@ def forgot_password():
         {"email": email},
         {"$set": {"reset_token": token, "reset_token_expires": expires}}
     )
-
-    from utils.email_utils import send_reset_email
     send_reset_email(email, token)
-
     return jsonify({"msg": "Si el email existe, se enviará un enlace de recuperación"}), 200
 
-@auth_bp.route('/reset-password', methods=['POST'])
-def reset_password():
+@auth_bp.route('/reset-password/<token>', methods=['POST'])
+def reset_password(token):
     data = request.get_json()
-    token = data.get('token')
     new_password = data.get('password')
 
-    if not token or not new_password:
-        return jsonify({"msg": "Faltan datos"}), 400
+    if not new_password:
+        return jsonify({"msg": "Falta la contraseña"}), 400
 
     user = mongo.db.users.find_one({"reset_token": token})
 
@@ -195,5 +190,4 @@ def reset_password():
             "$unset": {"reset_token": "", "reset_token_expires": ""}
         }
     )
-
     return jsonify({"msg": "Contraseña restablecida correctamente"}), 200

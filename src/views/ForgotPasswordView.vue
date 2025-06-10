@@ -11,13 +11,11 @@
           <p>Para ti, por ellos.</p>
         </div>
       </div>
-
       <div class="mobile-back-link">
         <router-link to="/login" class="back-link-mobile">
           <i class="fa-solid fa-dog fa-flip-horizontal"></i> Volver
         </router-link>
       </div>
-
       <form class="form" @submit.prevent="submit">
         <p class="title">Recuperar contraseña</p>
         <input
@@ -40,19 +38,18 @@
 import { ref } from 'vue'
 import axios from 'axios'
 
-const BASE_URL = 'https://tfg-doggo.onrender.com'
-// const BASE_URL = 'https://85ml2msw-5000.uks1.devtunnels.ms'
-
 const email = ref('')
 const msg = ref('')
 
 const submit = async () => {
   msg.value = ''
   try {
-    await axios.post(`${BASE_URL}/auth/forgot-password`, { email: email.value })
-    msg.value = 'Si el email existe, se enviará un enlace de recuperación.'
+    const response = await axios.post('https://tfg-doggo.onrender.com/forgot-password', {
+      email: email.value,
+    })
+    msg.value = response.data.msg
   } catch (e) {
-    msg.value = 'Error al enviar el correo.'
+    msg.value = e.response?.data?.msg || 'Error al enviar el correo.'
   }
 }
 </script>
