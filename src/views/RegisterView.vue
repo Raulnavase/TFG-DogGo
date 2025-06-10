@@ -171,7 +171,15 @@ const register = async () => {
     await authStore.registerUser(userData)
 
     if (authStore.registrationSuccess) {
-      router.push('/login')
+      if (authStore.userRole === 'admin') {
+        router.push({ name: 'admin-panel' })
+      } else if (authStore.userRole === 'owner') {
+        router.push({ name: 'owner-profile' })
+      } else if (authStore.userRole === 'walker') {
+        router.push({ name: 'walker-profile' })
+      } else {
+        router.push('/')
+      }
     } else {
       errorMessage.value = authStore.registrationError || 'Error desconocido al registrarse.'
     }
