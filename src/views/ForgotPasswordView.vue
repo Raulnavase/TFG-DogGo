@@ -40,7 +40,7 @@
 import { ref } from 'vue'
 import axios from 'axios'
 
-const BASE_URL = 'http://localhost:5000'
+const BASE_URL = 'https://tfg-doggo.onrender.com'
 // const BASE_URL = 'https://85ml2msw-5000.uks1.devtunnels.ms'
 
 const email = ref('')
