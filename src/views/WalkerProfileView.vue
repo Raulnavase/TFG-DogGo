@@ -175,7 +175,14 @@
           </div>
           <div>
             <label for="add-maxDogs">Máximo de perros por paseo:</label>
-            <input type="number" id="add-maxDogs" v-model.number="newAd.maxDogs" required min="1" />
+            <input
+              type="number"
+              id="add-maxDogs"
+              v-model.number="newAd.maxDogs"
+              required
+              min="1"
+              max="10"
+            />
           </div>
           <div>
             <label for="add-locality">Localidad:</label>
@@ -216,6 +223,7 @@
                   v-model.number="editAd.maxDogs"
                   required
                   min="1"
+                  max="10"
                 />
               </div>
               <div>

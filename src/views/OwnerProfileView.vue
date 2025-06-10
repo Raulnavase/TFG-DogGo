@@ -203,7 +203,14 @@
           </div>
           <div>
             <label for="add-age">Edad:</label>
-            <input type="number" id="add-age" v-model.number="authStore.newDog.age" required />
+            <input
+              min="1"
+              max="25"
+              type="number"
+              id="add-age"
+              v-model.number="authStore.newDog.age"
+              required
+            />
           </div>
           <div class="form-actions">
             <button type="submit">Agregar Perro</button>
@@ -256,6 +263,8 @@
               <div>
                 <label for="edit-age">Edad:</label>
                 <input
+                  min="1"
+                  max="25"
                   type="number"
                   id="edit-age"
                   v-model.number="authStore.editDog.age"
