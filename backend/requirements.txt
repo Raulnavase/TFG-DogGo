@@ -1,8 +1,9 @@
-Flask
-pymongo
-flask-bcrypt
-Flask-PyMongo
-Flask-JWT-Extended
+flask
 python-dotenv
-Flask-CORS
+flask-pymongo
+flask-bcrypt
+flask-jwt-extended
+flask-cors
+flask-limiter
+flask-talisman
 gunicorn

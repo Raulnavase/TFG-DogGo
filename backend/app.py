@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import os
 from extensions import mongo, bcrypt, jwt
@@ -12,7 +12,6 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_talisman import Talisman
 from functools import wraps
-from flask import request, jsonify
 
 def create_app():
     load_dotenv()
