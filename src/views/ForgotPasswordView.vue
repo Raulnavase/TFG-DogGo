@@ -20,7 +20,15 @@
 
       <form class="form" @submit.prevent="submit">
         <p class="title">Recuperar contraseña</p>
-        <input v-model="email" required placeholder="Email" class="input" type="email" />
+        <input
+          pattern="^\S.*\S$"
+          oninput="this.value = this.value.trim()"
+          v-model="email"
+          required
+          placeholder="Email"
+          class="input"
+          type="email"
+        />
         <button class="btn-registrarse" type="submit">Enviar enlace</button>
         <p v-if="msg" class="info-msg">{{ msg }}</p>
       </form>

@@ -20,10 +20,36 @@
       <form class="form" @submit.prevent="register">
         <p class="title">Regístrate</p>
         <div class="inputs">
-          <input class="input" v-model="name" required type="text" placeholder="Nombre" />
-          <input class="input" v-model="lastName" required type="text" placeholder="Apellido" />
-          <input class="input" v-model="email" required type="email" placeholder="Email" />
           <input
+            pattern="^\S.*\S$"
+            oninput="this.value = this.value.trim()"
+            class="input"
+            v-model="name"
+            required
+            type="text"
+            placeholder="Nombre"
+          />
+          <input
+            pattern="^\S.*\S$"
+            oninput="this.value = this.value.trim()"
+            class="input"
+            v-model="lastName"
+            required
+            type="text"
+            placeholder="Apellido"
+          />
+          <input
+            pattern="^\S.*\S$"
+            oninput="this.value = this.value.trim()"
+            class="input"
+            v-model="email"
+            required
+            type="email"
+            placeholder="Email"
+          />
+          <input
+            pattern="^\S.*\S$"
+            oninput="this.value = this.value.trim()"
             class="input"
             v-model="password"
             required
@@ -31,6 +57,8 @@
             placeholder="Contraseña"
           />
           <input
+            pattern="^\S.*\S$"
+            oninput="this.value = this.value.trim()"
             class="input"
             v-model="repPassword"
             required
@@ -49,6 +77,8 @@
         <p class="legend-role">Selecciona tu rol</p>
         <div class="box-role">
           <input
+            pattern="^\S.*\S$"
+            oninput="this.value = this.value.trim()"
             v-model="role"
             type="radio"
             name="role"
@@ -59,6 +89,8 @@
           <label for="owner" class="role-button">Dueño</label>
 
           <input
+            pattern="^\S.*\S$"
+            oninput="this.value = this.value.trim()"
             v-model="role"
             type="radio"
             name="role"

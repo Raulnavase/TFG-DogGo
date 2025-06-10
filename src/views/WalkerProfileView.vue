@@ -44,15 +44,31 @@
             <form @submit.prevent="savePersonalData">
               <div>
                 <label>Nombre:</label>
-                <input v-model="editName" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  v-model="editName"
+                  required
+                />
               </div>
               <div>
                 <label>Apellido:</label>
-                <input v-model="editLastName" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  v-model="editLastName"
+                  required
+                />
               </div>
               <div>
                 <label>Email:</label>
-                <input v-model="editEmail" type="email" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  v-model="editEmail"
+                  type="email"
+                  required
+                />
               </div>
               <div class="form-actions">
                 <button type="submit">Guardar</button>
@@ -66,15 +82,33 @@
             <form @submit.prevent="changePassword">
               <div>
                 <label>Contraseña actual:</label>
-                <input v-model="oldPassword" type="password" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  v-model="oldPassword"
+                  type="password"
+                  required
+                />
               </div>
               <div>
                 <label>Nueva contraseña:</label>
-                <input v-model="newPassword" type="password" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  v-model="newPassword"
+                  type="password"
+                  required
+                />
               </div>
               <div>
                 <label>Repite nueva contraseña:</label>
-                <input v-model="repeatNewPassword" type="password" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  v-model="repeatNewPassword"
+                  type="password"
+                  required
+                />
               </div>
               <div class="form-actions">
                 <button type="submit">Cambiar contraseña</button>
@@ -595,7 +629,7 @@ onMounted(async () => {
   width: 100vw;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .header {
@@ -676,7 +710,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .ad-requests {
@@ -686,7 +720,6 @@ onMounted(async () => {
   flex-grow: 1;
   gap: 2rem;
   padding: 1rem 2rem;
-  overflow: hidden;
 }
 
 .box-myad,
@@ -1324,6 +1357,7 @@ textarea {
     flex-direction: column;
     padding: 1rem 1.5rem;
     gap: 1.5rem;
+    overflow-y: auto;
   }
 
   .box-myad,

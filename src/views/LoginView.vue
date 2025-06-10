@@ -19,6 +19,8 @@
         <p class="title">Iniciar sesión</p>
         <div class="inputs">
           <input
+            pattern="^\S.*\S$"
+            oninput="this.value = this.value.trim()"
             class="input"
             v-model="email"
             type="email"
@@ -27,6 +29,8 @@
             placeholder="Correo electrónico"
           />
           <input
+            pattern="^\S.*\S$"
+            oninput="this.value = this.value.trim()"
             class="input"
             type="password"
             name="password"

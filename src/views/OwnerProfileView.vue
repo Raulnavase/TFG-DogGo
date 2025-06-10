@@ -43,15 +43,31 @@
             <form @submit.prevent="savePersonalData">
               <div>
                 <label>Nombre:</label>
-                <input v-model="editName" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  v-model="editName"
+                  required
+                />
               </div>
               <div>
                 <label>Apellido:</label>
-                <input v-model="editLastName" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  v-model="editLastName"
+                  required
+                />
               </div>
               <div>
                 <label>Email:</label>
-                <input v-model="editEmail" type="email" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  v-model="editEmail"
+                  type="email"
+                  required
+                />
               </div>
               <div class="form-actions">
                 <button type="submit">Guardar</button>
@@ -65,15 +81,33 @@
             <form @submit.prevent="changePassword">
               <div>
                 <label>Contraseña actual:</label>
-                <input v-model="oldPassword" type="password" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  v-model="oldPassword"
+                  type="password"
+                  required
+                />
               </div>
               <div>
                 <label>Nueva contraseña:</label>
-                <input v-model="newPassword" type="password" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  v-model="newPassword"
+                  type="password"
+                  required
+                />
               </div>
               <div>
                 <label>Repite nueva contraseña:</label>
-                <input v-model="repeatNewPassword" type="password" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  v-model="repeatNewPassword"
+                  type="password"
+                  required
+                />
               </div>
               <div class="form-actions">
                 <button type="submit">Cambiar contraseña</button>
@@ -134,7 +168,14 @@
           <h3>Agregar Nuevo Perro</h3>
           <div>
             <label for="add-name">Nombre:</label>
-            <input type="text" id="add-name" v-model="authStore.newDog.name" required />
+            <input
+              pattern="^\S.*\S$"
+              oninput="this.value = this.value.trim()"
+              type="text"
+              id="add-name"
+              v-model="authStore.newDog.name"
+              required
+            />
           </div>
           <div>
             <label for="add-breed">Raza:</label>
@@ -149,6 +190,8 @@
               <option value="Otra">Otra</option>
             </select>
             <input
+              pattern="^\S.*\S$"
+              oninput="this.value = this.value.trim()"
               v-if="showCustomBreedAdd"
               type="text"
               id="add-custom-breed"
@@ -177,7 +220,14 @@
             <form @submit.prevent="validateAndUpdateDog" class="edit-dog-form">
               <div>
                 <label for="edit-name">Nombre:</label>
-                <input type="text" id="edit-name" v-model="authStore.editDog.name" required />
+                <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
+                  type="text"
+                  id="edit-name"
+                  v-model="authStore.editDog.name"
+                  required
+                />
               </div>
               <div>
                 <label for="edit-breed">Raza:</label>
@@ -192,6 +242,8 @@
                   <option value="Otra">Otra</option>
                 </select>
                 <input
+                  pattern="^\S.*\S$"
+                  oninput="this.value = this.value.trim()"
                   v-if="showCustomBreedEdit"
                   type="text"
                   id="edit-custom-breed"
@@ -619,7 +671,7 @@ onMounted(async () => {
   width: 100vw;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .header {
@@ -700,7 +752,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .dogs-requests {
@@ -710,7 +762,6 @@ onMounted(async () => {
   flex-grow: 1;
   gap: 2rem;
   padding: 1rem 2rem;
-  overflow: hidden;
 }
 
 .box-mydogs,
@@ -862,6 +913,7 @@ h2 {
   background-color: #dc3545;
   color: white;
 }
+
 .dog-card-actions button:last-child:hover {
   background-color: #c82333;
 }
@@ -1127,10 +1179,12 @@ select {
   background-color: #ffc107;
   color: #333;
 }
+
 .request-status.aceptada {
   background-color: #28a745;
   color: white;
 }
+
 .request-status.rechazada,
 .request-status.cancelada_por_owner,
 .request-status.cancelada_por_walker {
@@ -1181,6 +1235,7 @@ select {
   background-color: #dc3545;
   color: white;
 }
+
 .request-actions .delete-btn:hover {
   background-color: #c82333;
 }
@@ -1371,6 +1426,7 @@ select {
     flex-direction: column;
     padding: 1rem 1.5rem;
     gap: 1.5rem;
+    overflow-y: auto;
   }
 
   .box-mydogs,

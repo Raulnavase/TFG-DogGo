@@ -3,6 +3,8 @@
     <form class="form" @submit.prevent="submit">
       <p class="title">Restablecer contraseña</p>
       <input
+        pattern="^\S.*\S$"
+        oninput="this.value = this.value.trim()"
         v-model="password"
         required
         placeholder="Nueva contraseña"
@@ -10,6 +12,8 @@
         type="password"
       />
       <input
+        pattern="^\S.*\S$"
+        oninput="this.value = this.value.trim()"
         v-model="repPassword"
         required
         placeholder="Repite la contraseña"
