@@ -24,7 +24,7 @@ def send_reset_email(to_email, token):
     remitente = getenv("REMITENTE_EMAIL")
     password = getenv("PASSWORD_EMAIL")
     asunto = "Recupera tu contraseña en DogGo"
-    enlace = "https://tfg-doggo.onrender.com/reset-password/{}".format(token)
+    enlace = "https://tfg-dog-go.vercel.app/reset-password/{}".format(token)
     cuerpo = "Hola,\n\nHaz clic en el siguiente enlace para restablecer tu contraseña:\n{}\n\nSi no solicitaste este cambio, ignora este correo.".format(enlace)
     msg = MIMEText(cuerpo)
     msg['Subject'] = asunto
