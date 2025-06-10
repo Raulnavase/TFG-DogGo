@@ -208,6 +208,20 @@ const logout = async () => {
 </script>
 
 <style scoped>
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
 .wrapper {
   height: 100vh;
   width: 100vw;
