@@ -48,7 +48,7 @@
             placeholder="Email"
           />
           <input
-            pattern="^\S.*\S$"
+            pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
             oninput="this.value = this.value.trim()"
             class="input"
             v-model="password"

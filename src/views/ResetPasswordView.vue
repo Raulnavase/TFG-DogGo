@@ -3,7 +3,7 @@
     <form class="form" @submit.prevent="submit">
       <p class="title">Restablecer contraseña</p>
       <input
-        pattern="^\S.*\S$"
+        pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
         oninput="this.value = this.value.trim()"
         v-model="password"
         required

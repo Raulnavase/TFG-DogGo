@@ -92,7 +92,7 @@
               <div>
                 <label>Nueva contraseña:</label>
                 <input
-                  pattern="^\S.*\S$"
+                  pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
                   oninput="this.value = this.value.trim()"
                   v-model="newPassword"
                   type="password"

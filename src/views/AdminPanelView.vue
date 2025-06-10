@@ -344,6 +344,7 @@ const confirmAndExecute = () => {
             </div>
             <div class="form-group">
               <BaseInput
+                pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
                 label="Contraseña"
                 type="password"
                 v-model="newUserData.password"
@@ -378,6 +379,7 @@ const confirmAndExecute = () => {
             </div>
             <div class="form-group">
               <BaseInput
+                pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
                 label="Nueva Contraseña (dejar en blanco para no cambiar)"
                 type="password"
                 v-model="editUserData.password"
