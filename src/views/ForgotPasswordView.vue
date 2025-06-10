@@ -44,7 +44,7 @@ const msg = ref('')
 const submit = async () => {
   msg.value = ''
   try {
-    const response = await axios.post('https://tfg-doggo.onrender.com/forgot-password', {
+    const response = await axios.post('https://tfg-doggo.onrender.com/auth/forgot-password', {
       email: email.value,
     })
     msg.value = response.data.msg
