@@ -40,7 +40,7 @@ const submit = async () => {
     return
   }
   try {
-    await axios.post('http://localhost:5000/auth/reset-password', {
+    await axios.post('https://tfg-doggo.onrender.com/auth/reset-password', {
       token: route.params.token,
       password: password.value,
     })
