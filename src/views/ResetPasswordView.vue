@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -36,6 +36,14 @@ const repPassword = ref('')
 const msg = ref('')
 const route = useRoute()
 const router = useRouter()
+const token = ref('')
+
+onMounted(() => {
+  token.value = route.query.token
+  if (!token.value) {
+    msg.value = 'Token de restablecimiento no encontrado en la URL.'
+  }
+})
 
 const submit = async () => {
   msg.value = ''
@@ -43,9 +51,15 @@ const submit = async () => {
     msg.value = 'Las contraseñas no coinciden.'
     return
   }
+
+  if (!token.value) {
+    msg.value = 'No se puede restablecer la contraseña sin un token válido.'
+    return
+  }
+
   try {
     const response = await axios.post(
-      `https://tfg-doggo.onrender.com/auth/reset-password/${route.params.token}`,
+      `https://tfg-doggo.onrender.com/auth/reset-password/${token.value}`,
       {
         password: password.value,
       },
@@ -53,7 +67,7 @@ const submit = async () => {
     msg.value = response.data.msg
     setTimeout(() => router.push({ name: 'login' }), 2000)
   } catch (e) {
-    msg.value = e.response?.data?.msg || 'Error al restablecer la contraseña.'
+    msg.value = e.response?.data?.msg || 'Error al restablecer la contraseña. Inténtalo de nuevo.'
   }
 }
 </script>

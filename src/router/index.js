@@ -20,6 +20,12 @@ const router = createRouter({
       component: () => import('../views/RegisterView.vue'),
     },
     {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: () => import('../views/ResetPasswordView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/owner-profile',
       name: 'owner-profile',
       component: () => import('../views/OwnerProfileView.vue'),
