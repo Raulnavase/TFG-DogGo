@@ -153,12 +153,12 @@
             <label for="add-biography">Biografía:</label>
             <textarea
               id="add-biography"
-              pattern="^\S.*\S$"
+              @blur="newAd.biography = newAd.biography.trim()"
               v-model="newAd.biography"
               required
-              maxlength="300"
+              maxlength="100"
               rows="4"
-              placeholder="Escribe una breve descripción (máx. 300 caracteres)"
+              placeholder="Escribe una breve descripción (máx. 100 caracteres)"
             ></textarea>
           </div>
           <div>
@@ -202,11 +202,11 @@
                 <textarea
                   id="edit-biography"
                   v-model="editAd.biography"
-                  pattern="^\S.*\S$"
+                  @blur="editAd.biography = editAd.biography.trim()"
                   required
-                  maxlength="300"
+                  maxlength="100"
                   rows="4"
-                  placeholder="Escribe una breve descripción (máx. 300 caracteres)"
+                  placeholder="Escribe una breve descripción (máx. 100 caracteres)"
                 ></textarea>
               </div>
               <div>
