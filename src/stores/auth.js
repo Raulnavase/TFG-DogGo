@@ -205,11 +205,14 @@ export const useAuthStore = defineStore('auth', {
           this.dogs.push(response.data.dog)
           this.showAddDogForm = false
           this.newDog = { name: '', breed: '', age: '' }
+          return true
         } else {
           this.addDogError = response.data.msg || 'Error al agregar el perro.'
+          return false
         }
       } catch (error) {
         this.addDogError = error.response?.data?.msg || 'Error de conexión al servidor.'
+        return false
       }
     },
 
@@ -255,11 +258,14 @@ export const useAuthStore = defineStore('auth', {
           this.dogs = this.dogs.map((d) => (d._id === this.editDog._id ? { ...d, ...dogData } : d))
           this.showEditDogForm = false
           this.editDog = { _id: '', name: '', breed: '', age: '' }
+          return true
         } else {
           this.editDogError = response.data.msg || 'Error al actualizar el perro.'
+          return false
         }
       } catch (error) {
         this.editDogError = error.response?.data?.msg || 'Error de conexión al servidor.'
+        return false
       }
     },
 
@@ -269,7 +275,8 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async deleteDog() {
-      if (!this.dogToDelete) return
+      if (!this.dogToDelete) return false
+
       this.addDogError = null
       this.addDogSuccess = null
       try {
@@ -279,11 +286,14 @@ export const useAuthStore = defineStore('auth', {
           this.addDogSuccess = 'Perro eliminado exitosamente.'
           this.showDeleteConfirm = false
           this.dogToDelete = null
+          return true
         } else {
           this.addDogError = response.data.msg || 'Error al eliminar el perro.'
+          return false
         }
       } catch (error) {
         this.addDogError = error.response?.data?.msg || 'Error de conexión al servidor.'
+        return false
       }
     },
   },
