@@ -64,6 +64,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await authPost('/register', userData)
         this.registrationSuccess = true
+        return response
       } catch (error) {
         this.registrationError = error.response?.data?.msg || 'Error al registrar el usuario'
         throw error

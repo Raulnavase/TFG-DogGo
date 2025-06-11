@@ -163,14 +163,9 @@ const register = async () => {
   }
 
   try {
-    const registrationResponse = await authStore.registerUser(userData)
-
-    if (registrationResponse.success) {
-      toast.success('¡Registro exitoso! Ahora puedes iniciar sesión.')
-      router.push({ name: 'login' })
-    } else {
-      toast.error(registrationResponse.error || 'Error desconocido al registrarse.')
-    }
+    await authStore.registerUser(userData)
+    toast.success('¡Registro exitoso! Ahora puedes iniciar sesión.')
+    router.push({ name: 'login' })
   } catch (error) {
     toast.error('Error al registrarse. Inténtalo de nuevo más tarde.')
     console.error('Error en el registro desde el componente:', error)
