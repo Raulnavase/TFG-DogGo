@@ -178,7 +178,9 @@ const handleLogout = () => {
 
 .btns a:hover,
 .btns button:hover {
-  opacity: 0.85;
+  background-color: #003978;
+  color: #fecf35;
+  transition: 0.4s;
 }
 
 .box-content {
