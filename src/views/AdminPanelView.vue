@@ -229,6 +229,23 @@ const confirmAndExecute = () => {
     confirmAction.value()
   }
 }
+
+const statusText = (status) => {
+  switch (status) {
+    case 'pendiente':
+      return 'Pendiente'
+    case 'aceptada':
+      return 'Aceptada'
+    case 'rechazada':
+      return 'Rechazada'
+    case 'cancelada_por_owner':
+      return 'Cancelada por el dueño'
+    case 'cancelada_por_walker':
+      return 'Cancelada por el paseador'
+    default:
+      return capitalize(status.replace(/_/g, ' '))
+  }
+}
 </script>
 
 <template>
@@ -463,7 +480,7 @@ const confirmAndExecute = () => {
               <div v-for="req in selectedUser.requests" :key="req._id" class="detail-card">
                 <p><strong>ID Solicitud:</strong> {{ req._id }}</p>
                 <p><strong>Fecha:</strong> {{ req.date }}</p>
-                <p><strong>Estado:</strong> {{ capitalizeFirstLetter(req.status) }}</p>
+                <p><strong>Estado:</strong> {{ statusText(req.status) }}</p>
                 <p>
                   <strong>Dueño:</strong>
                   {{ capitalizeFirstLetter(req.owner_info?.name || 'N/A') }}
