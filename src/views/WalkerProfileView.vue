@@ -153,6 +153,7 @@
             <label for="add-biography">Biografía:</label>
             <textarea
               id="add-biography"
+              pattern="^\S.*\S$"
               v-model="newAd.biography"
               required
               maxlength="300"
@@ -201,6 +202,7 @@
                 <textarea
                   id="edit-biography"
                   v-model="editAd.biography"
+                  pattern="^\S.*\S$"
                   required
                   maxlength="300"
                   rows="4"
