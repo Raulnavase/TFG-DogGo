@@ -15,15 +15,19 @@ export const useWalkerAdStore = defineStore('walkerAd', () => {
       const response = await adsGet('/walker')
       walkerAd.value = response.data
       console.log('Anuncio cargado en store:', walkerAd.value)
+      return true
     } catch (err) {
       walkerAd.value = null
       const msg = err.response?.data?.msg || 'Error al cargar el anuncio'
-      if (msg.toLowerCase().includes('no hay anuncio')) {
+      if (msg.toLowerCase().includes('no tienes un anuncio')) {
         error.value = null
       } else {
         error.value = msg
         console.error('Error en fetchWalkerAd:', error.value)
       }
+      return false
+    } finally {
+      loading.value = false
     }
   }
 
@@ -33,11 +37,18 @@ export const useWalkerAdStore = defineStore('walkerAd', () => {
     success.value = null
     try {
       const response = await adsPost('/create', adData)
-      success.value = response.data.msg
-      await fetchWalkerAd()
+      if (response.status === 201) {
+        success.value = response.data?.msg || 'Anuncio creado correctamente'
+        await fetchWalkerAd()
+        return true
+      } else {
+        error.value = 'No se pudo crear el anuncio'
+        return false
+      }
     } catch (err) {
       error.value = err.response?.data?.msg || 'Error al crear el anuncio'
       console.error('Error en createWalkerAd:', error.value)
+      return false
     } finally {
       loading.value = false
     }
@@ -51,9 +62,11 @@ export const useWalkerAdStore = defineStore('walkerAd', () => {
       const response = await adsPut('/update', adData)
       success.value = response.data.msg
       await fetchWalkerAd()
+      return true
     } catch (err) {
       error.value = err.response?.data?.msg || 'Error al actualizar el anuncio'
       console.error('Error en updateWalkerAd:', error.value)
+      return false
     } finally {
       loading.value = false
     }
@@ -67,9 +80,11 @@ export const useWalkerAdStore = defineStore('walkerAd', () => {
       const response = await adsPatch('/toggle-pause')
       success.value = response.data.msg
       await fetchWalkerAd()
+      return true
     } catch (err) {
       error.value = err.response?.data?.msg || 'Error al pausar/activar el anuncio'
       console.error('Error en togglePauseWalkerAd:', error.value)
+      return false
     } finally {
       loading.value = false
     }
@@ -83,9 +98,11 @@ export const useWalkerAdStore = defineStore('walkerAd', () => {
       const response = await adsDelete('/delete')
       success.value = response.data.msg
       walkerAd.value = null
+      return true
     } catch (err) {
       error.value = err.response?.data?.msg || 'Error al eliminar el anuncio'
       console.error('Error en deleteWalkerAd:', error.value)
+      return false
     } finally {
       loading.value = false
     }
