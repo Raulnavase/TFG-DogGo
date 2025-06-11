@@ -257,15 +257,15 @@ const handleLogout = () => {
 
 .footer {
   height: 10%;
-  width: 50%;
+  width: 100%;
   text-align: center;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
   text-align: center;
   flex-direction: row;
-  font-weight: bold;
   color: white;
+  background-color: rgba(0, 0, 0, 0.548);
 }
 
 .footer span {
