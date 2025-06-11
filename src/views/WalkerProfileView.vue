@@ -148,7 +148,14 @@
           <h3>Crear Nuevo Anuncio</h3>
           <div>
             <label for="add-biography">Biografía:</label>
-            <textarea id="add-biography" v-model="newAd.biography" required></textarea>
+            <textarea
+              id="add-biography"
+              v-model="newAd.biography"
+              required
+              maxlength="300"
+              rows="4"
+              placeholder="Escribe una breve descripción (máx. 300 caracteres)"
+            ></textarea>
           </div>
           <div>
             <label for="add-maxDogs">Máximo de perros por paseo:</label>
@@ -188,7 +195,14 @@
             <form @submit.prevent="validateAndUpdateAd" class="edit-ad-form">
               <div>
                 <label for="edit-biography">Biografía:</label>
-                <textarea id="edit-biography" v-model="editAd.biography" required></textarea>
+                <textarea
+                  id="edit-biography"
+                  v-model="editAd.biography"
+                  required
+                  maxlength="300"
+                  rows="4"
+                  placeholder="Escribe una breve descripción (máx. 300 caracteres)"
+                ></textarea>
               </div>
               <div>
                 <label for="edit-maxDogs">Máximo de perros por paseo:</label>
@@ -820,6 +834,16 @@ select {
 
 textarea {
   resize: vertical;
+  min-height: 100px;
+  max-height: 200px;
+  line-height: 1.5;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+textarea::placeholder {
+  color: #999;
+  font-style: italic;
 }
 
 .success-message {
