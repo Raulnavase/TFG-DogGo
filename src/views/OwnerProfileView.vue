@@ -29,7 +29,7 @@
         <div class="modal-content">
           <h2>Información personal</h2>
           <template v-if="!editPersonal">
-            <ul>
+            <ul class="info">
               <li><strong>Nombre:</strong> {{ capitalize(authStore.user?.name) }}</li>
               <li><strong>Apellido:</strong> {{ capitalize(authStore.user?.last_name) }}</li>
               <li><strong>Email:</strong> {{ authStore.user?.email }}</li>
@@ -940,6 +940,10 @@ form {
   box-shadow: none;
   margin-top: 0;
   padding: 0;
+}
+
+.info {
+  list-style: none;
 }
 
 form div {
