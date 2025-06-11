@@ -41,7 +41,7 @@ def get_user_details(user_id):
 
     advertisements = []
     if user.get('role') == 'walker':
-        ads_cursor = mongo.db.advertisements.find({"walker_id": obj_user_id})
+        ads_cursor = mongo.db.advertisements.find({"walker_id": str(obj_user_id)})
         for ad in ads_cursor:
             ad['_id'] = str(ad['_id'])
             ad['walker_id'] = str(ad['walker_id'])
