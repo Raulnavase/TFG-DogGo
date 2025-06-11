@@ -118,7 +118,10 @@
                 {{ capitalize(authStore.user?.name) }}
                 {{ capitalize(authStore.user?.last_name) }}
               </p>
-              <p><strong>Biografía:</strong> {{ walkerAdStore.walkerAd.biography }}</p>
+              <p><strong>Biografía:</strong></p>
+              <div class="bio-content">
+                {{ walkerAdStore.walkerAd.biography }}
+              </div>
               <p>
                 <strong>Máximo de perros por paseo:</strong> {{ walkerAdStore.walkerAd.maxDogs }}
               </p>
@@ -1002,6 +1005,17 @@ textarea::placeholder {
     transform 0.2s ease-in-out,
     box-shadow 0.2s ease-in-out;
   margin-top: 1.5rem;
+}
+
+.ad-card .bio-content {
+  max-height: 150px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.4;
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+  padding-right: 0.5rem;
 }
 
 .ad-card:hover {

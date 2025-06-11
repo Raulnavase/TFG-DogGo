@@ -43,7 +43,10 @@
         <div v-if="ads.length" class="ads-grid-container">
           <div v-for="ad in ads" :key="ad._id" class="ad-card">
             <p>{{ capitalize(ad.walker_name) }} {{ capitalize(ad.walker_lastName) }}</p>
-            <p>{{ ad.biography }}</p>
+            <p><strong>Biografía:</strong></p>
+            <div class="bio-content">
+              {{ ad.biography }}
+            </div>
             <p>Máximo de perros: {{ ad.maxDogs }}</p>
             <p>Localidad: {{ ad.locality }}</p>
             <p>Email: {{ ad.walker_email }}</p>
@@ -598,6 +601,21 @@ body {
   text-align: center;
   font-weight: 600;
   border: 1px solid #f5c6cb;
+}
+
+.bio-content {
+  max-height: 120px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.4;
+  font-size: 0.95rem;
+  color: #444;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  text-align: left;
 }
 
 @media (max-width: 768px) {

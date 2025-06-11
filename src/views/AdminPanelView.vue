@@ -440,7 +440,10 @@ const statusText = (status) => {
             <div v-if="selectedUser.advertisements && selectedUser.advertisements.length">
               <div v-for="ad in selectedUser.advertisements" :key="ad._id" class="detail-card">
                 <p><strong>ID Anuncio:</strong> {{ ad._id }}</p>
-                <p><strong>Biografía:</strong> {{ ad.biography }}</p>
+                <p><strong>Biografía:</strong></p>
+                <div class="bio-content">
+                  {{ ad.biography }}
+                </div>
                 <p><strong>Perros Máx:</strong> {{ ad.maxDogs }}</p>
                 <p><strong>Localidad:</strong> {{ ad.locality }}</p>
                 <p><strong>Pausado:</strong> {{ ad.paused ? 'Sí' : 'No' }}</p>
@@ -1019,6 +1022,22 @@ const statusText = (status) => {
 .btn-delete-confirm:hover {
   background-color: #e60000;
   transform: translateY(-2px);
+}
+
+.bio-content {
+  max-height: 120px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.4;
+  font-size: 0.95rem;
+  color: #444;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  text-align: left;
+  width: 100%;
 }
 
 @media (max-width: 768px) {
