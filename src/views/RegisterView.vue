@@ -102,9 +102,7 @@
 
         <p class="consent">
           Al registrarse, aceptas nuestros <br />
-          <router-link to="/terminos-y-condiciones" class="terms-link"
-            >términos y condiciones</router-link
-          >
+          <router-link to="/terms" class="terms-link">términos y condiciones</router-link>
         </p>
       </form>
     </div>
