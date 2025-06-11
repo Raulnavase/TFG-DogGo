@@ -30,7 +30,6 @@
           />
           <input
             pattern="^\S.*\S$"
-            oninput="this.value = this.value.trim()"
             class="input"
             type="password"
             name="password"

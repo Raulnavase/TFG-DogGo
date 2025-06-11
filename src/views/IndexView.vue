@@ -34,9 +34,9 @@
         </div>
       </div>
       <div class="footer">
-        <span>Privacidad</span>
-        <span>Términos</span>
-        <span>Contacto</span>
+        <span @click="goToPrivacy">Privacidad</span>
+        <span @click="goToTerms">Términos</span>
+        <span @click="goToContact">Contacto</span>
       </div>
     </div>
   </div>
@@ -56,6 +56,18 @@ const goToProfile = () => {
   } else {
     router.push('/login')
   }
+}
+
+const goToPrivacy = () => {
+  router.push('/privacy')
+}
+
+const goToTerms = () => {
+  router.push('/terms')
+}
+
+const goToContact = () => {
+  router.push('/contact')
 }
 
 const profileRoute = computed(() => {

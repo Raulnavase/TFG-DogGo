@@ -4,7 +4,6 @@
       <p class="title">Restablecer contraseña</p>
       <input
         pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
-        oninput="this.value = this.value.trim()"
         v-model="password"
         required
         placeholder="Nueva contraseña"
@@ -18,7 +17,6 @@
       </p>
       <input
         pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
-        oninput="this.value = this.value.trim()"
         v-model="repPassword"
         required
         placeholder="Repite la contraseña"

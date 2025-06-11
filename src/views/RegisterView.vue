@@ -22,7 +22,6 @@
         <div class="inputs">
           <input
             pattern="^\S.*\S$"
-            oninput="this.value = this.value.trim()"
             class="input"
             v-model="name"
             required
@@ -31,7 +30,6 @@
           />
           <input
             pattern="^\S.*\S$"
-            oninput="this.value = this.value.trim()"
             class="input"
             v-model="lastName"
             required
@@ -49,7 +47,6 @@
           />
           <input
             pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
-            oninput="this.value = this.value.value.trim()"
             class="input"
             v-model="password"
             required
@@ -63,7 +60,6 @@
           </p>
           <input
             pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
-            oninput="this.value = this.value.trim()"
             class="input"
             v-model="repPassword"
             required

@@ -44,21 +44,11 @@
             <form @submit.prevent="savePersonalData">
               <div>
                 <label>Nombre:</label>
-                <input
-                  pattern="^\S.*\S$"
-                  oninput="this.value = this.value.trim()"
-                  v-model="editName"
-                  required
-                />
+                <input pattern="^\S.*\S$" v-model="editName" required />
               </div>
               <div>
                 <label>Apellido:</label>
-                <input
-                  pattern="^\S.*\S$"
-                  oninput="this.value = this.value.trim()"
-                  v-model="editLastName"
-                  required
-                />
+                <input pattern="^\S.*\S$" v-model="editLastName" required />
               </div>
               <div>
                 <label>Email:</label>
@@ -80,19 +70,12 @@
             <form @submit.prevent="changePassword">
               <div>
                 <label>Contraseña actual:</label>
-                <input
-                  pattern="^\S.*\S$"
-                  oninput="this.value = this.value.trim()"
-                  v-model="oldPassword"
-                  type="password"
-                  required
-                />
+                <input pattern="^\S.*\S$" v-model="oldPassword" type="password" required />
               </div>
               <div>
                 <label>Nueva contraseña:</label>
                 <input
                   pattern="^(?=.*[A-Z])(?=.*\d)\S{8,}$"
-                  oninput="this.value = this.value.trim()"
                   v-model="newPassword"
                   type="password"
                   required
@@ -105,13 +88,7 @@
               </div>
               <div>
                 <label>Repite nueva contraseña:</label>
-                <input
-                  pattern="^\S.*\S$"
-                  oninput="this.value = this.value.trim()"
-                  v-model="repeatNewPassword"
-                  type="password"
-                  required
-                />
+                <input pattern="^\S.*\S$" v-model="repeatNewPassword" type="password" required />
               </div>
               <div class="form-actions">
                 <button type="submit">Cambiar contraseña</button>
