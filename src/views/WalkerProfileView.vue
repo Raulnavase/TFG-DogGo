@@ -262,7 +262,8 @@
                     </ul>
                   </div>
                   <p>
-                    <strong>Fecha:</strong> <span class="request-date">{{ req.date }}</span> -
+                    <strong>Fecha:</strong> <span class="request-date">{{ req.date }}</span
+                    ><br />
                     <strong>Estado:</strong>
                     <span :class="['request-status', req.status]">{{
                       statusText(req.status)
