@@ -22,7 +22,7 @@
 
     <div class="main">
       <div class="wellcome-box">
-        <h1>¡Hola, {{ authStore.userName }}! - Perfil de Dueño</h1>
+        <h1>¡Hola, {{ capitalize(authStore.userName) }}! - Perfil de Dueño</h1>
       </div>
 
       <div v-if="showPersonalInfo" class="modal-overlay">
