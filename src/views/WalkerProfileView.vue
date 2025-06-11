@@ -120,7 +120,7 @@
               </p>
               <p><strong>Biografía:</strong></p>
               <div class="bio-content">
-                {{ walkerAdStore.walkerAd.biography }}
+                {{ walkerAdStore.walkerAd.biography.trim() || 'Sin biografía.' }}
               </div>
               <p>
                 <strong>Máximo de perros por paseo:</strong> {{ walkerAdStore.walkerAd.maxDogs }}
