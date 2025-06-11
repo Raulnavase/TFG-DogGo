@@ -150,7 +150,7 @@ const handleLogout = () => {
 .box-btns-navbar div {
   display: flex;
   justify-content: space-around;
-  width: 80%;
+  min-width: 80%;
 }
 
 .btns a,
@@ -201,7 +201,7 @@ const handleLogout = () => {
   justify-content: center;
   align-items: center;
   height: 90%;
-  width: 50%;
+  min-width: 50%;
   text-align: center;
   gap: 1rem;
 }
