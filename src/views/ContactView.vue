@@ -54,17 +54,31 @@ const email = ref('')
 const message = ref('')
 const submitted = ref(false)
 
-const handleSubmit = () => {
-  console.log('Enviando mensaje:', {
-    name: name.value,
-    email: email.value,
-    message: message.value,
-  })
-  submitted.value = true
-  name.value = ''
-  email.value = ''
-  message.value = ''
-  setTimeout(() => (submitted.value = false), 5000)
+const handleSubmit = async () => {
+  try {
+    const response = await fetch('https://tfg-doggo.onrender.com/auth/contact', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: name.value,
+        email: email.value,
+        message: message.value,
+      }),
+    })
+
+    if (!response.ok) throw new Error('Error en el envío')
+
+    submitted.value = true
+    name.value = ''
+    email.value = ''
+    message.value = ''
+    setTimeout(() => (submitted.value = false), 5000)
+  } catch (error) {
+    console.error('Fallo al enviar el formulario:', error)
+    alert('Hubo un problema al enviar el mensaje. Inténtalo más tarde.')
+  }
 }
 </script>
 

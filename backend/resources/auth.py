@@ -2,7 +2,7 @@ from flask import request, jsonify, Blueprint
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, get_jwt_identity
 from extensions import mongo, bcrypt
 from bson import ObjectId
-from utils.email_utils import send_welcome_email, send_reset_email
+from utils.email_utils import send_welcome_email, send_reset_email, send_contact_email
 import secrets
 from datetime import datetime, timedelta
 
@@ -191,3 +191,23 @@ def reset_password(token):
         }
     )
     return jsonify({"msg": "Contraseña restablecida correctamente"}), 200
+
+
+@auth_bp.route('/contact', methods=['POST'])
+def contact_form():
+    data = request.get_json()
+    name = data.get('name')
+    email = data.get('email')
+    message = data.get('message')
+
+    if not name or not email or not message:
+        return jsonify({"msg": "Faltan campos requeridos"}), 400
+
+    try:
+        send_contact_email(name, email, message)
+        return jsonify({"msg": "Mensaje enviado correctamente"}), 200
+    except Exception as e:
+        print("Error enviando mensaje de contacto: {}".format(e))
+        return jsonify({"msg": "Error al enviar el mensaje"}), 500
+    
+    
