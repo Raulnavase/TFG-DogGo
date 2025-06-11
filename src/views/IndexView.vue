@@ -30,7 +30,7 @@
         <h2>Conecta paseadores<br />con dueños de perros</h2>
         <p>Encuentra fácilmente paseadores de<br />perros de confianza en tu área.</p>
         <div class="box-btn-empezar">
-          <button @click="goToProfile">Empezar 🐾</button>
+          <button @click="goToProfile">Empezar <i class="fa-solid fa-paw"></i></button>
         </div>
       </div>
       <div class="footer">
