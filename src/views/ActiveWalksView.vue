@@ -603,7 +603,7 @@ body {
   border: 1px solid #f5c6cb;
 }
 
-.bio-content {
+.ad-card .bio-content {
   max-height: 120px;
   overflow-y: auto;
   white-space: pre-wrap;
@@ -616,6 +616,8 @@ body {
   border-radius: 10px;
   background-color: #f9f9f9;
   text-align: left;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
