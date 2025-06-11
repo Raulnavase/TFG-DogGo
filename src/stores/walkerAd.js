@@ -17,10 +17,13 @@ export const useWalkerAdStore = defineStore('walkerAd', () => {
       console.log('Anuncio cargado en store:', walkerAd.value)
     } catch (err) {
       walkerAd.value = null
-      error.value = err.response?.data?.msg || 'Error al cargar el anuncio'
-      console.error('Error en fetchWalkerAd:', error.value)
-    } finally {
-      loading.value = false
+      const msg = err.response?.data?.msg || 'Error al cargar el anuncio'
+      if (msg.toLowerCase().includes('no hay anuncio')) {
+        error.value = null
+      } else {
+        error.value = msg
+        console.error('Error en fetchWalkerAd:', error.value)
+      }
     }
   }
 
