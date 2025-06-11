@@ -79,25 +79,24 @@ const authStore = useAuthStore()
 const toast = useToast()
 
 const login = async () => {
-  try {
-    const success = await authStore.loginUser({ email: email.value, password: password.value })
-    if (success) {
-      toast.success('¡Sesión iniciada correctamente!')
-      if (authStore.userRole === 'admin') {
-        router.push({ name: 'admin-panel' })
-      } else if (authStore.userRole === 'owner') {
-        router.push({ name: 'owner-profile' })
-      } else if (authStore.userRole === 'walker') {
-        router.push({ name: 'walker-profile' })
-      } else {
-        router.push('/')
-      }
+  const success = await authStore.loginUser({
+    email: email.value,
+    password: password.value,
+  })
+
+  if (success) {
+    toast.success('¡Sesión iniciada correctamente!')
+    if (authStore.userRole === 'admin') {
+      router.push({ name: 'admin-panel' })
+    } else if (authStore.userRole === 'owner') {
+      router.push({ name: 'owner-profile' })
+    } else if (authStore.userRole === 'walker') {
+      router.push({ name: 'walker-profile' })
     } else {
-      toast.error(authStore.loginError || 'Error desconocido al iniciar sesión.')
+      router.push('/')
     }
-  } catch (error) {
-    toast.error('Error al intentar iniciar sesión. Por favor, inténtalo de nuevo.')
-    console.error('Error en el componente de login:', error)
+  } else {
+    toast.error(authStore.loginError)
   }
 }
 </script>

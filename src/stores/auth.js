@@ -97,7 +97,7 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('userRole')
         localStorage.removeItem('user')
-        throw error
+        return false
       } finally {
         this.isLoggingIn = false
       }
