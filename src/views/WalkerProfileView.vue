@@ -527,11 +527,12 @@ const validateAndCreateAd = async () => {
     toast.error('El número máximo de perros debe ser al menos 1.')
     return
   }
-  const success = await walkerAdStore.updateWalkerAd(data)
+  const success = await walkerAdStore.createWalkerAd(newAd.value)
   if (success) {
-    toast.success('Anuncio actualizado correctamente')
+    toast.success('Anuncio creado correctamente.')
+    showAddAdForm.value = false
   } else {
-    toast.error(walkerAdStore.error)
+    toast.error(walkerAdStore.error || 'Error al crear el anuncio.')
   }
 }
 
