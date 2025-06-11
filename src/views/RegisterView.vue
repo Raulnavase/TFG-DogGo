@@ -131,11 +131,11 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { useToast } from 'vue-toastification' // Importa useToast
+import { useToast } from 'vue-toastification'
 
 const authStore = useAuthStore()
 const router = useRouter()
-const toast = useToast() // Inicializa el toast
+const toast = useToast()
 
 const name = ref('')
 const lastName = ref('')
@@ -143,11 +143,9 @@ const email = ref('')
 const password = ref('')
 const repPassword = ref('')
 const role = ref('')
-const showPasswordHint = ref(false) // Nuevo estado para el aviso de contraseña
+const showPasswordHint = ref(false)
 
 const register = async () => {
-  // errorMessage.value = ''; // Ya no lo necesitamos
-
   if (!role.value) {
     toast.error('Debes seleccionar un rol (Paseador o Dueño).')
     return
@@ -168,31 +166,8 @@ const register = async () => {
     const registrationResponse = await authStore.registerUser(userData)
 
     if (registrationResponse.success) {
-      toast.success('¡Registro exitoso! Iniciando sesión...')
-
-      const loginSuccess = await authStore.loginUser({
-        email: email.value,
-        password: password.value,
-      })
-
-      if (loginSuccess) {
-        toast.success('Sesión iniciada correctamente.')
-        if (authStore.userRole === 'admin') {
-          router.push({ name: 'admin-panel' })
-        } else if (authStore.userRole === 'owner') {
-          router.push({ name: 'owner-profile' })
-        } else if (authStore.userRole === 'walker') {
-          router.push({ name: 'walker-profile' })
-        } else {
-          router.push('/')
-        }
-      } else {
-        toast.error(
-          authStore.loginError ||
-            'Registro exitoso, pero falló el inicio de sesión automático. Por favor, inicia sesión manualmente.',
-        )
-        router.push({ name: 'login' })
-      }
+      toast.success('¡Registro exitoso! Ahora puedes iniciar sesión.')
+      router.push({ name: 'login' })
     } else {
       toast.error(registrationResponse.error || 'Error desconocido al registrarse.')
     }
